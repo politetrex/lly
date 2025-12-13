@@ -1,0 +1,68 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+.main, #main {
+    margin: 5px;
+}
+
+.header a {
+    color: white;
+    text-decoration: none;
+}
+.header a:hover {
+    color: green; 
+    text-decoration: underline;
+}
+.header {
+    background-color: #00d0ff;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+}
+
+.button-style {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 4px;
+    font: inherit;
+    color: inherit;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: normal;
+}
+
+/* Specifically target button to remove defaults */
+button.button-style {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.header a.current-page {
+    color: blue;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    margin: 20px 0;
+}
+
+/* zwn.html */
+.work-content, .works-list div, .categories-list div, .articles-list div {
+    margin: 10px;
+    padding: 5px;
+    border: 2px ridge #ccc;
+}
+
+#recent-updates div {
+    margin: 10px;
+    padding: 5px;
+    border: 2px ridge #ccc;
+}

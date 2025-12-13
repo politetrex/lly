@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的作文区</title>
+    <link rel="stylesheet" href="./sources/css/basic-styling.css">
+    <link rel="icon" href="./sources/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./sources/favicon.ico">
+</head>
+<body>
+    <div class="header">
+        <a href="./index.html" class="current-page">首页</a>
+        <a href="./zwn.html">作文</a>
+        <a href="./zwc.html">作文集</a>
+        <!--Search on the right-->
+        <button style="float: right;">🔍</button>
+        <input type="text" placeholder="搜索ID..." style="float: right;" id="search-input">
+    </div>
+    <div class="main">
+        <h1>我的作文区</h1>
+        <div>
+            <a href="#search-input" class="button-style">搜索</a>
+            <button onclick="alert('此功能尚未实现，敬请期待～')" class="button-style">随机</button>
+        </div>
+        <h2>最近更新</h2>
+        <div id="recent-updates">
+        </div>
+        <!--<h2>近30天热力表</h2>-->
+        <table id="heatmap-table">
+        </table>
+    </div>
+    <footer>&copy;2025 李林耀</footer>
+    <script src="./sources/js/index.js" type="module"></script>
+    <script type="module" src="./sources/js/search-bar.js"></script>
+    <!--<script src="./sources/js/heatmap.js" type="module"></script>-->
+</body>
+</html>
