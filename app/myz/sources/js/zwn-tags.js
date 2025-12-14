@@ -17,18 +17,18 @@ export function zwnTag(id) {
 
     // Create main container
     const container = document.createElement('div');
-    container.style.marginBottom = '15px';
-    container.style.padding = '10px';
-    container.style.border = '1px solid #eee';
-    container.style.borderRadius = '5px';
+    //container.style.marginBottom = '15px';
+    //container.style.padding = '10px';
+    //container.style.border = '1px solid #eee';
+    //container.style.borderRadius = '5px';
     
     // Create main link
     const mainLink = document.createElement('a');
     mainLink.href = `./zwn.html?id=${id}`;
     mainLink.textContent = zwn_name;
-    mainLink.style.fontSize = '1.1em';
-    mainLink.style.fontWeight = 'bold';
-    mainLink.style.textDecoration = 'none';
+    //mainLink.style.fontSize = '1.1em';
+    //mainLink.style.fontWeight = 'bold';
+    //mainLink.style.textDecoration = 'none';
     
     // Add version badge if multiple versions
     if (entry.versions.length > 1) {
@@ -63,8 +63,8 @@ export function zwnTag(id) {
             const classLink = document.createElement('a');
             classLink.href = `./zwc.html?id=${cid}`;
             classLink.textContent = centry ? centry.title : "Unknown Class";
-            classLink.style.margin = '0 3px';
-            classLink.style.textDecoration = 'none';
+            //classLink.style.margin = '0 3px';
+            //classLink.style.textDecoration = 'none';
             
             container.appendChild(classLink);
             
