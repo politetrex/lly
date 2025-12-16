@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const footers = document.getElementsByTagName('footer');
         const currentYear = new Date().getFullYear();
         const githubUrl = "https://github.com/politetrex/lly"; // Your repo
-        const githubIcon = "../../../copyright-settings/github.png"; // Path to GitHub icon
+        const githubIcon = "https://politetrex.github.io/lly/copyright-settings/github.png"; // Path to GitHub icon
         
         // Build copyright text
         let copyrightText = '&copy; ';
