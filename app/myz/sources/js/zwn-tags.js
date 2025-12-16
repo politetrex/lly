@@ -1,5 +1,5 @@
-import { zwc } from '../../data/zwc.js';
-import { zwn } from '../../data/zwn.js';
+import { zwc } from '../../../../data/myz/zwc.js';
+import { zwn } from '../../../../data/myz/zwn.js';
 
 export function zwnTag(id) {
     const entry = zwn[id];

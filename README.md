@@ -19,5 +19,5 @@
 - 您要会HTML、CSS、JavaScript这几个网页前端开发语言的全面内容。
 - **特定文件不能修改：**
   - ./copyright-settings
-  - ./app/中的所有/data文件夹及其内容
+  - ./data文件夹及其内容
 #### ©Copyright 2025 李林耀

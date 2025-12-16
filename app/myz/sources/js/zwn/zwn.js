@@ -1,5 +1,5 @@
-import { zwn } from '../../../data/zwn.js';
-import { zwc } from '../../../data/zwc.js';
+import { zwn } from '../../../../../data/myz/zwn.js';
+import { zwc } from '../../../../../data/myz/zwc.js';
 import { zwnTag } from '../zwn-tags.js';
 
 const urlParams = new URLSearchParams(window.location.search);

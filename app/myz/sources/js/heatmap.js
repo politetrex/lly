@@ -1,4 +1,4 @@
-import { zwn } from '../../data/zwn.js';
+import { zwn } from '../../../../data/myz/zwn.js';
 const table = document.getElementById('heatmap-table');
 for (let i = 0; i < 3; i++) {
     const row = document.createElement('tr');

@@ -1,4 +1,4 @@
-import { zwn } from '../../data/zwn.js';
+import { zwn } from '../../../../data/myz/zwn.js';
 import { zwnTag } from './zwn-tags.js';
 
 const recentUpdatesDiv = document.getElementById('recent-updates');
