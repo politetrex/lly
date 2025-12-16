@@ -8,5 +8,10 @@ export const zwc = {
         created: 20251123,
         title: "语文习作",
         contained: ["Z-cObqJ0", "Z-c0bqK0", "Z-cObss0"]
+    },
+    "G-cObsy0": {
+        created: 20251216,
+        title: "部分考试作文",
+        contained: ["Z-cObsy0"]
     }
 };

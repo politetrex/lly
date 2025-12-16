@@ -3,12 +3,22 @@ import { zwnTag } from './zwn-tags.js';
 
 const recentUpdatesDiv = document.getElementById('recent-updates');
 
-// Get ALL articles and sort by date (newest first)
+// Get ALL articles and sort by LATEST VERSION date (newest first)
 const allArticles = Object.entries(zwn)
-    .sort((a, b) => b[1].date - a[1].date)  // Changed to b - a for descending
+    .sort((a, b) => {
+        // Get latest version date for each article
+        const aLatestDate = a[1].versions[a[1].versions.length - 1].date;
+        const bLatestDate = b[1].versions[b[1].versions.length - 1].date;
+        return bLatestDate - aLatestDate;  // Descending (newest first)
+    })
     .slice(0, 5);  // Show 5 most recent articles
 
-console.log('Found articles:', allArticles.map(([id, data]) => id));
+console.log('Found articles:', allArticles.map(([id, data]) => ({
+    id,
+    name: data.name,
+    latestDate: data.versions[data.versions.length - 1].date,
+    versions: data.versions.length
+})));
 
 // Display each article
 allArticles.forEach(([articleId, articleData]) => {
