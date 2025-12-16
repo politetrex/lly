@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (copyright!="HIDDEN"){
         const footers = document.getElementsByTagName('footer');
         const currentYear = new Date().getFullYear();
-        const githubUrl = "https://github.com/politetrex/***"; // Your repo
-        const githubIcon = "../../../copyright-settings/github.png"; // Path to GitHub icon
+        const githubUrl = "https://github.com/politetrex/lly"; // Your repo
+        const githubIcon = "https://politetrex.github.io/lly/copyright-settings/github.png"; // Path to GitHub icon
         
         // Build copyright text
         let copyrightText = '&copy; ';
