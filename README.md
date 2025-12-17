@@ -1,4 +1,4 @@
-# 我的综合网站 [https://politetrex.github.io/lly/](前往)
+# 我的综合网站 [前往](https://politetrex.github.io/lly/)
 ## 页面信息
 ### 主页
 合并所有应用，连接各个部分，显示重点
