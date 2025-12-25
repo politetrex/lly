@@ -2,7 +2,7 @@ export const zwc = {
     "G-cObqC0": {
         created: 20251116,
         title: "每周趣事",
-        contained: ["Z-cObqC0", "Z-cObqJ0", "Z-cObqP0"]
+        contained: ["Z-cObqC0", "Z-cObqJ0", "Z-cObqP0", "Z-cObsC0"]
     },
     "G-cObqJ0": {
         created: 20251123,
