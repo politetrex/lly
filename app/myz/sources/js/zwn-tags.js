@@ -33,7 +33,7 @@ export function zwnTag(id) {
     // Add version badge if multiple versions
     if (entry.versions.length > 1) {
         const versionBadge = document.createElement('span');
-        versionBadge.textContent = ` ${entry.versions.length}版`;
+        versionBadge.textContent = ` ${entry.versions.length}版 `;
         versionBadge.style.background = '#007bff';
         versionBadge.style.color = 'white';
         versionBadge.style.padding = '2px 6px';

@@ -7,7 +7,7 @@ export const zwc = {
     "G-cObqJ0": {
         created: 20251123,
         title: "语文习作",
-        contained: ["Z-cObqJ0", "Z-c0bqK0", "Z-cObss0"]
+        contained: ["Z-cObqJ0", "Z-c0bqK0", "Z-cObss0", "Z-cObsE0"]
     },
     "G-cObsy0": {
         created: 20251216,

@@ -7,7 +7,7 @@ body {
 }
 
 .header a {
-    color: white;
+    color: black;
     text-decoration: none;
 }
 .header a:hover {
@@ -15,8 +15,8 @@ body {
     text-decoration: underline;
 }
 .header {
-    background-color: blue;
-    color: white;
+    background-color: yellow;
+    color: black;
     padding: 10px;
     border-bottom: 1px solid #000;
 }
@@ -37,7 +37,7 @@ body {
 
 .bigger {
     font-size:18px;
-    color: white;
+    color: black;
 }
 
 button.button-style {
@@ -47,7 +47,7 @@ button.button-style {
 }
 
 .header a.current-page {
-    color: rgb(21, 255, 0);
+    color: rgb(70, 127, 65);
     font-weight: bold;
     text-decoration: underline;
 }
@@ -57,4 +57,35 @@ footer {
     font-size: 0.9em;
     color: #666;
     margin: 20px 0;
+}
+
+/*Preview...*/
+.note-preview {
+    border: 1px solid #ccc;
+    margin: 3px; padding: 3px;
+    border-radius: 4px;
+}
+.note-card {
+    border: 3px solid #666;
+    margin: 3px; padding: 3px;
+    border-radius: 4px;
+}
+.note-header {
+    color: rgb(121, 121, 0);
+    text-decoration: none;
+}
+@media screen and (max-width: 499px) {
+    body {
+        width: 500px;
+        overflow-x: auto;
+    }
+    
+    /* Or show a warning */
+    body::before {
+        content: "请扩大你的屏幕大小。最小宽度500";
+        display: block;
+        background: #ffcc00;
+        padding: 10px;
+        text-align: center;
+    }
 }

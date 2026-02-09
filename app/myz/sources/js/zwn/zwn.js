@@ -101,13 +101,17 @@ if (id) {
             
             // Allow specific safe tags only
             function safeHTML(html) {
-                return html.replace(/<(\/?)(a|strong|em|br|p)(\s[^>]*)?>/gi, '<$1$2$3>');
+                return html.replace(/<(\/?)(a|strong|em|br|p|span)(\s[^>]*)?>/gi, '<$1$2$3>');
             }
 
             // Then use:
             version.content.forEach(paragraph => {
                 if (paragraph && paragraph.trim() !== '') {
                     const pElem = document.createElement('p');
+                    if (paragraph.length>=2 && paragraph.slice(0,2)=="|>"){
+                        pElem.style.textAlign="right";
+                        paragraph=paragraph.slice(2, paragraph.length);
+                    }
                     pElem.innerHTML = safeHTML(paragraph);
                     contentContainer.appendChild(pElem);
                 }
