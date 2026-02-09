@@ -1,4 +1,4 @@
-import {copyright, publish, owner} from "../../../../../copyright-settings/copyright-preset.js";
+import {copyright, publish, owner} from "../../../copyright-settings/copyright-preset.js";
 document.addEventListener('DOMContentLoaded', function() {
     if (copyright!="HIDDEN"){
         const footers = document.getElementsByTagName('footer');

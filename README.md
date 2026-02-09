@@ -1,4 +1,4 @@
-# 我的综合网站 [GitHub](https://github.com/politetrex/lly) [View](https://politetrex.github.io/lly)
+# 我的综合网站 [前往](https://politetrex.github.io/lly)
 ## 页面信息
 ### 主页
 合并所有应用，连接各个部分，显示重点
@@ -17,7 +17,7 @@
 ### 目前我只支持会编程的认识的同学和我合作完成这个巨大的网站！
 - 您的每个PR都需要写上来源（如同学校/同机构等）、名字方便识别
 - 您要会HTML、CSS、JavaScript这几个网页前端开发语言的全面内容。
-- **特定文件不能修改：**
+- **特定文件不能查看及修改：**
   - ./copyright-settings
   - ./data文件夹及其内容
 #### ©Copyright 2025-2026 李林耀
