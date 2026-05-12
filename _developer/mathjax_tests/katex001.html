@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"></script>
+</head>
+<body style="background-color: white;">
+    <div>
+        <p style="text-align: center;">
+            等差数列
+        </p>
+        $$a_n=a_1+(n-1)d$$
+        $$S_n=na_1+\frac{1}{2}n(n-1)d$$
+        $$1^2+2^2+3^2+\dots+n^2=\frac{n(n+1)(2n+1)}{6}$$
+        <p style="text-align: center;">立方和等于和平方：$$1^2+2^3+3^3+\dots+n^3=(1+2+3+\cdots+n)^2$$</p>
+        $$a^3 \pm b^3=(a \pm b)(a^2 \mp ab + b^2)$$
+        $$a^2-b^2=(a+b)(a-b)$$
+        <p style="text-align: center;">
+            等比数列
+        </p>
+        $$a_n=a_1 q^{n-1}$$
+        $$S_n=\frac{a_1(1-q^n)}{1-q}$$
+    </div>
+    <script>
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\(', right: '\\)', display: false}
+            ]
+        });
+    </script>
+</body></html>

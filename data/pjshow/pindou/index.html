@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼豆图案生成器 - 图片转Excel拼豆！！！</title>
+    <link rel="icon" href="../../../sources/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../../../sources/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4361ee',
+                        secondary: '#3f37c9',
+                        accent: '#4cc9f0',
+                        success: '#4ade80',
+                        warning: '#fbbf24',
+                        danger: '#f87171',
+                        light: '#f8fafc',
+                        dark: '#1e293b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .bead-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .bead-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .glass-effect {
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+        }
+    </style>
+    <style>
+        .bead-preview {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        .dropzone {
+            border: 2px dashed #4361ee;
+            transition: all 0.3s ease;
+        }
+        
+        .dropzone.active {
+            border-color: #4ade80;
+            background-color: rgba(74, 222, 128, 0.1);
+        }
+        @keyframes beadBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .bead-animation {
+            animation: beadBounce 2s infinite;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4361ee;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #3f37c9;
+            transform: scale(1.1);
+        }
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #4361ee;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-primary mb-2">拼豆图案生成器</h1>
+            <p><img src="../../../sources/favicon.png" style="display: inline; width: 20px; height: auto;" class="text-lg text-gray-600"> 林耀附属网站应用</p>
+            <p class="text-lg text-gray-600">上传图片，设置尺寸，一键生成Excel拼豆模板</p>
+            <!-- div class="flex justify-center mt-4 space-x-2">
+                <div class="w-8 h-8 bg-yellow-400 rounded-full bead-animation" style="animation-delay: 0s;"></div>
+                <div class="w-8 h-8 bg-blue-500 rounded-full bead-animation" style="animation-delay: 0.2s;"></div>
+                <div class="w-8 h-8 bg-red-400 rounded-full bead-animation" style="animation-delay: 0.4s;"></div>
+                <div class="w-8 h-8 bg-green-400 rounded-full bead-animation" style="animation-delay: 0.6s;"></div>
+                <div class="w-8 h-8 bg-purple-500 rounded-full bead-animation" style="animation-delay: 0.8s;"></div>
+            </div -->
+        </header>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-xl p-6 bead-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa fa-sliders mr-2 text-primary"></i>
+                    图片设置
+                </h2>
+                <div class="mb-8">
+                    <label class="block text-gray-700 font-medium mb-2">上传图片</label>
+                    <div id="dropzone" class="dropzone rounded-lg p-8 text-center cursor-pointer">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden">
+                        <i class="fa fa-cloud-upload text-4xl text-primary mb-3"></i>
+                        <p class="text-gray-600 mb-2">点击或拖拽图片到此处</p>
+                        <p class="text-sm text-gray-500">支持 JPG、PNG、GIF 格式</p>
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <label class="block text-gray-700 font-medium mb-4">设置拼豆尺寸</label>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm text-gray-600">宽度 (单元格)</label>
+                            <span id="widthValue" class="text-sm font-medium text-primary">20</span>
+                        </div>
+                        <input type="range" id="widthSlider" min="5" max="100" value="20" class="w-full">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm text-gray-600">高度 (单元格)</label>
+                            <span id="heightValue" class="text-sm font-medium text-primary">20</span>
+                        </div>
+                        <input type="range" id="heightSlider" min="5" max="100" value="20" class="w-full">
+                    </div>
+                    
+                    <div class="mt-2 text-xs text-blue-600">
+                        <p>💡 提示：支持最大100x100的拼豆尺寸，超过50x50时会有性能提示</p>
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <label class="block text-gray-700 font-medium mb-2">颜色设置</label>
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-gray-700">
+                            <i class="fa fa-info-circle text-blue-500 mr-1"></i>
+                            系统将使用图片中的原始颜色。Excel文件将包含颜色代码，您可以使用这些代码设置单元格背景色。
+                        </p>
+                    </div>
+                    <div class="mt-2 text-xs text-green-600">
+                        <p>🎨 Excel使用技巧：选中单元格 → 右键 → 设置单元格格式 → 填充 → 其他颜色 → 自定义 → 输入十六进制颜色代码</p>
+                    </div>
+                </div>
+                <button id="generateBtn" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center bead-hover">
+                    <i class="fa fa-magic mr-2"></i>
+                    生成拼豆模板
+                </button>
+            </div>
+            <div class="bg-white rounded-xl p-6 bead-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa fa-eye mr-2 text-primary"></i>
+                    预览效果
+                </h2>
+                <div id="previewContainer" class="relative mb-6">
+                    <div id="previewPlaceholder" class="flex flex-col items-center justify-center h-64 bg-gray-100 rounded-lg">
+                        <i class="fa fa-image text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-500">上传图片后在此处预览</p>
+                    </div>
+                    <canvas id="imagePreview" class="bead-preview w-full h-auto rounded-lg hidden"></canvas>
+                    <canvas id="beadPreview" class="bead-preview w-full h-auto rounded-lg hidden"></canvas>
+                </div>
+                <div id="colorLegend" class="mb-6 hidden">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">颜色图例</h3>
+                    <div class="flex flex-wrap gap-2" id="legendContainer"> </div>
+                </div>
+                <div id="downloadSection" class="hidden">
+                    <button id="downloadBtn" class="w-full bg-success hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center bead-hover">
+                        <i class="fa fa-download mr-2"></i>
+                        下载Excel模板
+                    </button>
+                    <div id="downloadStatus" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+        <footer></footer>
+        <script src="../../../sources/js/copyright/copyright-parse.js" type="module"></script>
+    </div>
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-lg flex flex-col items-center">
+            <div class="loading-spinner mb-4"></div>
+            <p id="loadingText" class="text-gray-700">正在处理图片...</p>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let originalImage = null;
+        let beadColors = [];
+        
+        // 拼豆常用颜色集 (RGB值)
+        const BEAD_COLOR_PALETTE = [
+            { name: "黑色", rgb: [0, 0, 0] },
+            { name: "深灰", rgb: [100, 100, 100] },
+            { name: "中灰", rgb: [169, 169, 169] },
+            { name: "浅灰", rgb: [211, 211, 211] },
+            { name: "白色", rgb: [255, 255, 255] },
+            { name: "粉红", rgb: [255, 192, 203] },
+            { name: "红色", rgb: [255, 0, 0] },
+            { name: "深红", rgb: [139, 0, 0] },
+            { name: "橙色", rgb: [255, 165, 0] },
+            { name: "浅橙", rgb: [255, 215, 0] },
+            { name: "黄色", rgb: [255, 255, 0] },
+            { name: "浅绿", rgb: [144, 238, 144] },
+            { name: "绿色", rgb: [0, 128, 0] },
+            { name: "深绿", rgb: [0, 100, 0] },
+            { name: "浅蓝", rgb: [173, 216, 230] },
+            { name: "蓝色", rgb: [0, 0, 255] },
+            { name: "深蓝", rgb: [0, 0, 139] },
+            { name: "紫色", rgb: [128, 0, 128] },
+            { name: "深紫", rgb: [75, 0, 130] },
+            { name: "粉色", rgb: [255, 105, 180] },
+            { name: "棕色", rgb: [165, 42, 42] },
+            { name: "深棕", rgb: [139, 69, 19] },
+            { name: "肤色", rgb: [255, 222, 173] },
+            { name: "米色", rgb: [245, 245, 220] }
+        ];
+        
+        // DOM元素
+        const imageInput = document.getElementById('imageInput');
+        const dropzone = document.getElementById('dropzone');
+        const widthSlider = document.getElementById('widthSlider');
+        const heightSlider = document.getElementById('heightSlider');
+        const widthValue = document.getElementById('widthValue');
+        const heightValue = document.getElementById('heightValue');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+        const imagePreview = document.getElementById('imagePreview');
+        const beadPreview = document.getElementById('beadPreview');
+        const colorLegend = document.getElementById('colorLegend');
+        const legendContainer = document.getElementById('legendContainer');
+        const downloadSection = document.getElementById('downloadSection');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        
+        // 初始化
+        function init() {
+            // 图片上传处理
+            imageInput.addEventListener('change', handleImageUpload);
+            
+            // 拖放区域处理
+            dropzone.addEventListener('click', () => imageInput.click());
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('active');
+            });
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('active');
+            });
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('active');
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    imageInput.files = e.dataTransfer.files;
+                    handleImageUpload(e);
+                }
+            });
+            
+            // 滑块值更新
+            widthSlider.addEventListener('input', () => {
+                widthValue.textContent = widthSlider.value;
+                if (originalImage) updatePreviews();
+            });
+            
+            heightSlider.addEventListener('input', () => {
+                heightValue.textContent = heightSlider.value;
+                if (originalImage) updatePreviews();
+            });
+            
+            // 颜色设置已简化，无需监听变更
+            
+            // 生成按钮点击
+            generateBtn.addEventListener('click', generateBeadPattern);
+            
+            // 下载按钮点击
+            downloadBtn.addEventListener('click', downloadExcel);
+        }
+        
+        // 处理图片上传
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                originalImage = new Image();
+                originalImage.onload = () => {
+                    showLoading("正在处理图片...");
+                    setTimeout(() => {
+                        updatePreviews();
+                        hideLoading();
+                    }, 500);
+                };
+                originalImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 更新预览
+        function updatePreviews() {
+            if (!originalImage) return;
+            
+            const width = parseInt(widthSlider.value);
+            const height = parseInt(heightSlider.value);
+            
+            // 显示预览区域，隐藏占位符
+            previewPlaceholder.classList.add('hidden');
+            imagePreview.classList.remove('hidden');
+            beadPreview.classList.remove('hidden');
+            
+            // 设置原始图片预览
+            const imageCtx = imagePreview.getContext('2d');
+            imagePreview.width = width * 10; // 预览尺寸
+            imagePreview.height = height * 10;
+            imageCtx.drawImage(originalImage, 0, 0, imagePreview.width, imagePreview.height);
+            
+            // 生成拼豆预览
+            generateBeadPreview();
+        }
+        
+        // 生成拼豆预览 - 简化版本
+        function generateBeadPreview() {
+            try {
+                const width = parseInt(widthSlider.value);
+                const height = parseInt(heightSlider.value);
+                
+                // 限制最大尺寸以保证性能
+                const maxSize = 50;
+                let displayWidth = width;
+                let displayHeight = height;
+                
+                if (width > maxSize || height > maxSize) {
+                    const scale = maxSize / Math.max(width, height);
+                    displayWidth = Math.floor(width * scale);
+                    displayHeight = Math.floor(height * scale);
+                }
+                
+                // 设置拼豆预览画布
+                const beadCtx = beadPreview.getContext('2d');
+                beadPreview.width = displayWidth * 8; // 缩小预览尺寸
+                beadPreview.height = displayHeight * 8;
+                
+                // 创建临时画布来处理图像
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // 将原图缩放到目标尺寸
+                tempCtx.drawImage(originalImage, 0, 0, width, height);
+                
+                // 获取像素数据
+                const imageData = tempCtx.getImageData(0, 0, width, height);
+                const data = imageData.data;
+                
+                // 简化的颜色处理 - 直接使用像素颜色，不进行复杂的聚类
+                beadColors = [];
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    
+                    // 找到最接近的拼豆颜色
+                    const nearestColor = findNearestBeadColor({r, g, b});
+                    beadColors.push({
+                        r: nearestColor.rgb[0],
+                        g: nearestColor.rgb[1],
+                        b: nearestColor.rgb[2],
+                        name: nearestColor.name
+                    });
+                }
+                
+                // 更新颜色图例
+                updateColorLegend(beadColors);
+                colorLegend.classList.remove('hidden');
+                
+                // 绘制简化的拼豆预览
+                const beadSize = 8;
+                for (let y = 0; y < displayHeight; y++) {
+                    for (let x = 0; x < displayWidth; x++) {
+                        // 采样原始尺寸中的点
+                        const originalX = Math.floor(x * (width / displayWidth));
+                        const originalY = Math.floor(y * (height / displayHeight));
+                        const index = originalY * width + originalX;
+                        const color = beadColors[index];
+                        
+                        if (color) {
+                            // 绘制简单的方块代替圆形，提高性能
+                            beadCtx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+                            beadCtx.fillRect(x * beadSize, y * beadSize, beadSize - 1, beadSize - 1);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('生成预览时出错:', error);
+                alert('生成预览时出错，请重试。');
+            }
+        }
+        
+        // 简化的颜色处理函数 - 移除复杂的K-means算法
+        function reduceImageColors(imageData, width, height, numColors) {
+            // 这个函数不再使用，颜色处理已集成到generateBeadPreview中
+            return [];
+        }
+        
+        // 计算两个颜色之间的欧几里得距离
+        function getColorDistance(color1, color2) {
+            const dr = color1.r - color2.r;
+            const dg = color1.g - color2.g;
+            const db = color1.b - color2.b;
+            return Math.sqrt(dr * dr + dg * dg + db * db);
+        }
+        
+        // 查找最接近的拼豆颜色
+        function findNearestBeadColor(color) {
+            // 验证输入颜色
+            if (!color || typeof color.r !== 'number' || typeof color.g !== 'number' || typeof color.b !== 'number') {
+                console.warn('无效的颜色输入:', color);
+                return BEAD_COLOR_PALETTE[4]; // 返回白色作为默认值
+            }
+            
+            // 确保RGB值在有效范围内
+            const r = Math.max(0, Math.min(255, color.r));
+            const g = Math.max(0, Math.min(255, color.g));
+            const b = Math.max(0, Math.min(255, color.b));
+            
+            let minDistance = Infinity;
+            let nearestColor = BEAD_COLOR_PALETTE[4]; // 默认返回白色，避免全黑
+            
+            for (const beadColor of BEAD_COLOR_PALETTE) {
+                const distance = getColorDistance(
+                    { r, g, b }, 
+                    { r: beadColor.rgb[0], g: beadColor.rgb[1], b: beadColor.rgb[2] }
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestColor = beadColor;
+                }
+            }
+            
+            return nearestColor;
+        }
+        
+        // 更新颜色图例
+        function updateColorLegend(colors) {
+            legendContainer.innerHTML = '';
+            
+            // 获取唯一颜色
+            const uniqueColors = [];
+            const colorMap = new Map();
+            
+            for (const color of colors) {
+                const key = `${color.r},${color.g},${color.b}`;
+                if (!colorMap.has(key)) {
+                    colorMap.set(key, color);
+                    uniqueColors.push(color);
+                }
+            }
+            
+            // 创建图例项
+            for (const color of uniqueColors) {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'flex items-center';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'w-4 h-4 rounded-full mr-1 border border-gray-300';
+                colorBox.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+                
+                const colorName = document.createElement('span');
+                colorName.className = 'text-xs text-gray-700';
+                colorName.textContent = color.name || '';
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(colorName);
+                legendContainer.appendChild(legendItem);
+            }
+        }
+        
+        // 生成拼豆图案
+        function generateBeadPattern() {
+            if (!originalImage) {
+                alert('请先上传图片！');
+                return;
+            }
+            
+            showLoading("正在生成拼豆模板...");
+            
+            try {
+                // 确保预览已更新
+                generateBeadPreview();
+                
+                // 显示下载区域
+                downloadSection.classList.remove('hidden');
+                
+                // 显示成功消息
+                const downloadStatus = document.getElementById('downloadStatus');
+                downloadStatus.textContent = '预览生成成功！点击下载按钮导出Excel文件。';
+                downloadStatus.className = 'mt-1 text-green-600';
+                downloadStatus.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error("生成预览时出错:", error);
+                alert("生成预览时出错：" + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 下载Excel文件 - 支持自动设置单元格背景色
+        function downloadExcel() {
+            try {
+                // 显示状态信息
+                const downloadStatus = document.getElementById('downloadStatus');
+                downloadStatus.textContent = '正在准备导出...';
+                downloadStatus.className = 'mt-1 text-blue-600';
+                downloadStatus.classList.remove('hidden');
+                
+                // 检查是否有颜色数据
+                if (beadColors.length === 0) {
+                    alert('没有颜色数据！请先生成拼豆模板。');
+                    downloadStatus.textContent = '导出失败：没有颜色数据';
+                    downloadStatus.className = 'mt-1 text-red-600';
+                    return;
+                }
+                
+                const width = parseInt(widthSlider.value);
+                const height = parseInt(heightSlider.value);
+                
+                // 优化性能的建议尺寸
+                const recommendedMaxSize = 50;
+                let exportWidth = width;
+                let exportHeight = height;
+                
+                // 如果尺寸过大，给出性能警告
+                if (width > recommendedMaxSize || height > recommendedMaxSize) {
+                    const totalCells = width * height;
+                    if (totalCells > 2000) {
+                        const userConfirm = confirm(`警告：图片尺寸较大（${width}x${height}，共${totalCells}个单元格），可能导致Excel文件生成缓慢。是否继续？`);
+                        if (!userConfirm) {
+                            downloadStatus.textContent = '导出已取消';
+                            downloadStatus.className = 'mt-1 text-gray-600';
+                            return;
+                        }
+                    }
+                }
+                
+                downloadStatus.textContent = '正在创建数据...';
+                
+                // 创建包含样式的单元格数据
+                const data = [];
+                const uniqueColors = new Map();
+                
+                // 收集颜色信息
+                for (let y = 0; y < exportHeight; y++) {
+                    for (let x = 0; x < exportWidth; x++) {
+                        const index = y * width + x;
+                        if (index < beadColors.length) {
+                            const color = beadColors[index];
+                            const key = `${color.r},${color.g},${color.b}`;
+                            if (!uniqueColors.has(key)) {
+                                uniqueColors.set(key, color);
+                            }
+                        }
+                    }
+                }
+                
+                // 直接生成拼豆图案数据，不包含图例
+                
+                // 添加拼豆数据（带背景色）
+                for (let y = 0; y < exportHeight; y++) {
+                    const row = [];
+                    for (let x = 0; x < exportWidth; x++) {
+                        const index = y * width + x;
+                        if (index < beadColors.length) {
+                            const color = beadColors[index];
+                            const hexColor = rgbToHex(color.r, color.g, color.b);
+                            
+                            // 创建带背景色的单元格
+                            const cell = {
+                                v: '', // 空值，只显示背景色
+                                t: 's',
+                                s: {
+                                    fill: {
+                                        patternType: 'solid',
+                                        fgColor: { rgb: hexColor }
+                                    },
+                                    border: {
+                                        top: { style: 'thin', color: { rgb: 'CCCCCC' } },
+                                        bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
+                                        left: { style: 'thin', color: { rgb: 'CCCCCC' } },
+                                        right: { style: 'thin', color: { rgb: 'CCCCCC' } }
+                                    }
+                                }
+                            };
+                            row.push(cell);
+                        } else {
+                            // 空单元格
+                            row.push({
+                                v: '',
+                                t: 's',
+                                s: {
+                                    fill: { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } }
+                                }
+                            });
+                        }
+                    }
+                    data.push(row);
+                }
+                
+                downloadStatus.textContent = '正在生成Excel文件...';
+                
+                // 创建工作表
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // 设置列宽
+                ws['!cols'] = Array(exportWidth + 1).fill({wch: 3});
+                
+                // 为所有数据行设置统一高度
+                ws['!rows'] = [];
+                for (let i = 0; i < exportHeight; i++) {
+                    ws['!rows'].push({ hpx: 15 });
+                }
+                
+                // 为整个图案区域添加粗边框
+                const range = {
+                    s: { r: 0, c: 0 }, // 起始单元格
+                    e: { r: exportHeight - 1, c: exportWidth - 1 } // 结束单元格
+                };
+                
+                // 设置顶部粗边框
+                for (let c = range.s.c; c <= range.e.c; c++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: c });
+                    const cell = ws[cellAddress];
+                    if (cell && cell.s) {
+                        cell.s.border.top = { style: 'medium', color: { rgb: '000000' } };
+                    }
+                }
+                
+                // 设置底部粗边框
+                for (let c = range.s.c; c <= range.e.c; c++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: range.e.r, c: c });
+                    const cell = ws[cellAddress];
+                    if (cell && cell.s) {
+                        cell.s.border.bottom = { style: 'medium', color: { rgb: '000000' } };
+                    }
+                }
+                
+                // 设置左侧粗边框
+                for (let r = range.s.r; r <= range.e.r; r++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: r, c: range.s.c });
+                    const cell = ws[cellAddress];
+                    if (cell && cell.s) {
+                        cell.s.border.left = { style: 'medium', color: { rgb: '000000' } };
+                    }
+                }
+                
+                // 设置右侧粗边框
+                for (let r = range.s.r; r <= range.e.r; r++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: r, c: range.e.c });
+                    const cell = ws[cellAddress];
+                    if (cell && cell.s) {
+                        cell.s.border.right = { style: 'medium', color: { rgb: '000000' } };
+                    }
+                }
+                
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "拼豆图案");
+                
+                // 写入文件
+                const fileName = "拼豆图案生成器_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+                
+                // 使用try-catch包装文件写入操作
+                try {
+                    XLSX.writeFile(wb, fileName);
+                    downloadStatus.textContent = '🎉 文件已成功生成！Excel单元格已自动设置背景色！';
+                    downloadStatus.className = 'mt-1 text-green-600 font-bold';
+                } catch (fileError) {
+                    console.error('写入文件时出错:', fileError);
+                    downloadStatus.textContent = '文件保存失败：' + fileError.message;
+                    downloadStatus.className = 'mt-1 text-red-600';
+                }
+                
+            } catch (error) {
+                console.error('生成Excel文件时出错:', error);
+                const downloadStatus = document.getElementById('downloadStatus');
+                downloadStatus.textContent = '生成失败：' + error.message;
+                downloadStatus.className = 'mt-1 text-red-600';
+            } finally {
+                // 5秒后清除状态信息（成功消息多显示一会）
+                setTimeout(() => {
+                    const downloadStatus = document.getElementById('downloadStatus');
+                    if (downloadStatus) {
+                        downloadStatus.classList.add('hidden');
+                    }
+                }, 5000);
+            }
+        }
+        
+        // 转换RGB为十六进制颜色代码
+        function rgbToHex(r, g, b) {
+            // 验证输入
+            if (typeof r !== 'number' || typeof g !== 'number' || typeof b !== 'number') {
+                console.warn('无效的RGB值:', r, g, b);
+                return 'FFFFFF'; // 返回白色作为默认值
+            }
+            
+            // 确保RGB值在0-255范围内
+            r = Math.round(Math.max(0, Math.min(255, r)));
+            g = Math.round(Math.max(0, Math.min(255, g)));
+            b = Math.round(Math.max(0, Math.min(255, b)));
+            
+            // 转换为十六进制并确保6位长度
+            const rHex = r.toString(16).toUpperCase().padStart(2, '0');
+            const gHex = g.toString(16).toUpperCase().padStart(2, '0');
+            const bHex = b.toString(16).toUpperCase().padStart(2, '0');
+            
+            const hexColor = rHex + gHex + bHex;
+            
+            // 验证输出格式
+            if (hexColor.length !== 6 || !/^[0-9A-F]{6}$/.test(hexColor)) {
+                console.warn('生成的十六进制颜色格式不正确:', hexColor);
+                return 'FFFFFF';
+            }
+            
+            return hexColor;
+        }
+        
+        // 显示加载遮罩
+        function showLoading(text) {
+            loadingText.textContent = text || "处理中...";
+            loadingOverlay.classList.remove('hidden');
+        }
+        
+        // 隐藏加载遮罩
+        function hideLoading() {
+            loadingOverlay.classList.add('hidden');
+        }
+        
+
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
