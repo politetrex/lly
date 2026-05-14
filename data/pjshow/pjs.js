@@ -7,5 +7,9 @@ export const Projects={
     "P-cOePc0": {
         "type": "public",
         "locale": "pindou"
+    },
+    "P-cOePp0": {
+        "type:": "public",
+        "locale": "stu_g4d_mth"
     }
 }

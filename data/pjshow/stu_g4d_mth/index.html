@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四年级下册数学每日练习</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+    <link rel="icon" href="../../../sources/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../../../sources/favicon.ico">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#93c5fd',
+                        accent: '#1d4ed8',
+                        neutral: '#f1f5f9',
+                        'neutral-dark': '#94a3b8'
+                    },
+                    fontFamily: {
+                        sans: ['Arial', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .card {
+                @apply bg-white rounded-lg shadow-card p-4 transition-all duration-300;
+            }
+            .card:hover {
+                @apply shadow-card-hover;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-2 rounded-lg hover:bg-accent transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-accent px-6 py-2 rounded-lg hover:bg-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
+            }
+            .btn-success {
+                @apply bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50;
+            }
+            .section-title {
+                @apply text-xl font-bold text-accent mb-4 flex items-center;
+            }
+            .section-title i {
+                @apply mr-2;
+            }
+            .math-problem {
+                @apply mb-3 p-3 bg-neutral rounded-md;
+            }
+            .vertical-line {
+                @apply border-l-2 border-gray-300 h-8 mx-4;
+            }
+            .answer {
+                @apply bg-green-100 text-green-800 font-medium;
+            }
+            .print-info {
+                @apply hidden;
+            }
+            @media print {
+                .no-print {
+                    @apply hidden;
+                }
+                .print-info {
+                    @apply block text-sm text-gray-600 ml-4;
+                }
+                .header-container {
+                    @apply flex items-center justify-between;
+                }
+                .header-main {
+                    @apply text-left;
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 头部信息 -->
+        <header class="mb-4 header-container">
+            <div class="header-main">
+                <h1 class="text-3xl font-bold text-accent mb-2">四年级下册数学每日练习</h1>
+                <p class="text-neutral-dark"><b>林耀爱学习</b> · 人教版 · 四则运算 · 运算定律 · 小数计算</p>
+            </div>
+            <div class="print-info">
+                <div><i class="fa fa-calendar mr-1"></i><span id="print-date"></span></div>
+                <div><i class="fa fa-random mr-1"></i>种子: <span id="print-seed"></span></div>
+            </div>
+        </header>
+
+        <!-- 操作区域 -->
+        <div class="card mb-6 no-print">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="flex items-center mb-4 sm:mb-0">
+                    <i class="fa fa-calendar text-primary mr-2"></i>
+                    <span id="current-date" class="text-lg font-medium"></span>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="flex items-center">
+                        <i class="fa fa-random text-primary mr-2"></i>
+                        <span class="text-lg font-medium">种子: </span>
+                        <input type="number" id="seed-input" class="ml-1 text-lg font-medium font-mono border border-gray-300 rounded px-2 py-1 w-32 text-center">
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="generate-btn" class="btn-primary flex items-center">
+                            <i class="fa fa-refresh mr-2"></i>
+                            生成题目
+                        </button>
+                        <button id="show-answer-btn" class="btn-success flex items-center">
+                            <i class="fa fa-check-circle mr-2"></i>
+                            显示答案
+                        </button>
+                        <button id="print-btn" class="btn-secondary flex items-center">
+                            <i class="fa fa-print mr-2"></i>
+                            打印练习
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 题目区域 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- 口算题 -->
+            <div class="card md:col-span-2">
+                <h2 class="section-title">
+                    <i class="fa fa-calculator"></i>
+                    一、口算题（10道）
+                </h2>
+                <div id="oral-problems" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                    <!-- 口算题将在这里生成 -->
+                </div>
+            </div>
+
+            <!-- 竖式计算 -->
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fa fa-pencil"></i>
+                    二、竖式计算（3道）
+                </h2>
+                <div id="vertical-problems" class="space-y-6">
+                    <!-- 竖式计算题将在这里生成 -->
+                </div>
+            </div>
+
+            <!-- 简便计算/脱式计算 -->
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fa fa-magic"></i>
+                    三、简便计算/脱式计算（6道）
+                </h2>
+                <div id="simplified-problems" class="space-y-4">
+                    <!-- 简便计算题将在这里生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 答案区域 -->
+        <div id="answer-section" class="card mb-8 hidden">
+            <h2 class="section-title">
+                <i class="fa fa-check-square-o"></i>
+                参考答案
+            </h2>
+            <div id="answers-container">
+                <!-- 答案将在这里显示 -->
+            </div>
+        </div>
+
+        <footer class="text-center text-neutral-dark text-sm"></footer>
+        <script src="../../../sources/js/copyright/copyright-parse.js" type="module"></script>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentSeed = 0;
+        let allAnswers = {
+            oral: [],
+            vertical: [],
+            simplified: []
+        };
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置当前日期和种子
+            setCurrentDateAndSeed();
+            
+            // 生成题目
+            generateAllProblems();
+            
+            // 绑定按钮事件
+            document.getElementById('generate-btn').addEventListener('click', generateProblemsFromInput);
+            document.getElementById('show-answer-btn').addEventListener('click', toggleAnswers);
+            document.getElementById('print-btn').addEventListener('click', printProblems);
+        });
+        
+        // 设置当前日期和种子
+        function setCurrentDateAndSeed() {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            currentSeed = Math.floor(today.getTime() / 1000);
+            
+            // 显示日期和种子
+            const formattedDate = formatDate(today);
+            document.getElementById('current-date').textContent = formattedDate;
+            document.getElementById('seed-input').value = currentSeed;
+            
+            // 设置打印用的日期和种子
+            document.getElementById('print-date').textContent = formattedDate;
+            document.getElementById('print-seed').textContent = currentSeed;
+        }
+        
+        // 格式化日期为 YYYY年MM月DD日
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}年${month}月${day}日`;
+        }
+        
+        // 从输入框生成题目
+        function generateProblemsFromInput() {
+            const seedInput = document.getElementById('seed-input');
+            const newSeed = parseInt(seedInput.value);
+            
+            if (!isNaN(newSeed)) {
+                currentSeed = newSeed;
+                generateAllProblems();
+                // 隐藏答案区域
+                document.getElementById('answer-section').classList.add('hidden');
+                // 更新打印用的种子
+                document.getElementById('print-seed').textContent = currentSeed;
+            } else {
+                alert('请输入有效的种子数值！');
+                seedInput.value = currentSeed;
+            }
+        }
+        
+        // 切换答案显示
+        function toggleAnswers() {
+            const answerSection = document.getElementById('answer-section');
+            const showAnswerBtn = document.getElementById('show-answer-btn');
+            
+            if (answerSection.classList.contains('hidden')) {
+                // 显示答案
+                answerSection.classList.remove('hidden');
+                showAnswerBtn.innerHTML = '<i class="fa fa-eye-slash mr-2"></i>隐藏答案';
+                displayAllAnswers();
+            } else {
+                // 隐藏答案
+                answerSection.classList.add('hidden');
+                showAnswerBtn.innerHTML = '<i class="fa fa-check-circle mr-2"></i>显示答案';
+            }
+        }
+        
+        // 显示所有答案
+        function displayAllAnswers() {
+            const answersContainer = document.getElementById('answers-container');
+            answersContainer.innerHTML = '';
+            
+            // 创建口算题答案
+            const oralAnswersDiv = document.createElement('div');
+            oralAnswersDiv.className = 'mb-6';
+            oralAnswersDiv.innerHTML = `
+                <h3 class="text-lg font-bold text-accent mb-3">一、口算题答案</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3" id="oral-answers">
+                </div>
+            `;
+            answersContainer.appendChild(oralAnswersDiv);
+            
+            // 填充口算题答案
+            const oralAnswersContainer = document.getElementById('oral-answers');
+            allAnswers.oral.forEach((answer, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.className = 'math-problem answer flex items-center justify-between';
+                answerElement.innerHTML = `
+                    <span class="font-medium">${index + 1}. </span>
+                    <span>${answer}</span>
+                `;
+                oralAnswersContainer.appendChild(answerElement);
+            });
+            
+            // 创建竖式计算题答案
+            const verticalAnswersDiv = document.createElement('div');
+            verticalAnswersDiv.className = 'mb-6';
+            verticalAnswersDiv.innerHTML = `
+                <h3 class="text-lg font-bold text-accent mb-3">二、竖式计算题答案</h3>
+                <div class="space-y-6" id="vertical-answers">
+                </div>
+            `;
+            answersContainer.appendChild(verticalAnswersDiv);
+            
+            // 填充竖式计算题答案
+            const verticalAnswersContainer = document.getElementById('vertical-answers');
+            allAnswers.vertical.forEach((answer, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.className = 'math-problem answer';
+                answerElement.innerHTML = `
+                    <div class="mb-1">${index + 1}. ${answer.problem} = ${answer.result}</div>
+                `;
+                verticalAnswersContainer.appendChild(answerElement);
+            });
+            
+            // 创建简便计算题答案
+            const simplifiedAnswersDiv = document.createElement('div');
+            simplifiedAnswersDiv.className = 'mb-6';
+            simplifiedAnswersDiv.innerHTML = `
+                <h3 class="text-lg font-bold text-accent mb-3">三、简便计算/脱式计算题答案</h3>
+                <div class="space-y-4" id="simplified-answers">
+                </div>
+            `;
+            answersContainer.appendChild(simplifiedAnswersDiv);
+            
+            // 填充简便计算题答案
+            const simplifiedAnswersContainer = document.getElementById('simplified-answers');
+            allAnswers.simplified.forEach((answer, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.className = 'math-problem answer';
+                answerElement.innerHTML = `
+                    <div class="flex items-start">
+                        <span class="font-medium mr-2">${index + 1}.</span>
+                        <div class="flex-1">
+                            <div>${answer.problem} = ${answer.result}</div>
+                            <div class="mt-2 text-sm text-green-700">${answer.steps || ''}</div>
+                        </div>
+                    </div>
+                `;
+                simplifiedAnswersContainer.appendChild(answerElement);
+            });
+        }
+        
+        // 生成所有题目
+        function generateAllProblems() {
+            // 使用种子初始化随机数生成器
+            Math.seedrandom(currentSeed.toString());
+            
+            // 生成各类题目
+            generateOralProblems();
+            generateVerticalProblems();
+            generateSimplifiedProblems();
+        }
+        
+        // 生成10道口算题
+        function generateOralProblems() {
+            const container = document.getElementById('oral-problems');
+            container.innerHTML = '';
+            
+            // 清空答案数组
+            allAnswers.oral = [];
+            
+            for (let i = 0; i < 10; i++) {
+                let problem = '';
+                let answer = 0;
+                
+                // 随机选择题目类型
+                const problemType = Math.floor(Math.random() * 4); // 0: 加法, 1: 减法, 2: 乘法, 3: 除法
+                
+                switch (problemType) {
+                    case 0: // 加法
+                        const addNum1 = Math.floor(Math.random() * 100);
+                        const addNum2 = Math.floor(Math.random() * 100);
+                        answer = addNum1 + addNum2;
+                        problem = `${addNum1} + ${addNum2} = `;
+                        break;
+                        
+                    case 1: // 减法
+                        const subNum1 = Math.floor(Math.random() * 100);
+                        const subNum2 = Math.floor(Math.random() * (subNum1 + 1)); // 确保结果非负
+                        answer = subNum1 - subNum2;
+                        problem = `${subNum1} - ${subNum2} = `;
+                        break;
+                        
+                    case 2: // 乘法
+                        const mulNum1 = Math.floor(Math.random() * 10);
+                        const mulNum2 = Math.floor(Math.random() * 10);
+                        answer = mulNum1 * mulNum2;
+                        problem = `${mulNum1} × ${mulNum2} = `;
+                        break;
+                        
+                    case 3: // 除法
+                        const divNum2 = Math.floor(Math.random() * 9) + 1; // 1-9
+                        const divResult = Math.floor(Math.random() * 10); // 0-9
+                        const divNum1 = divNum2 * divResult;
+                        answer = divResult;
+                        problem = `${divNum1} ÷ ${divNum2} = `;
+                        break;
+                }
+                
+                // 保存答案
+                allAnswers.oral.push(answer);
+                
+                // 创建题目元素
+                const problemElement = document.createElement('div');
+                problemElement.className = 'math-problem flex items-center justify-between';
+                problemElement.innerHTML = `
+                    <span class="font-medium">${i + 1}. ${problem}</span>
+                    <span class="w-16 h-6 bg-white border border-gray-300 rounded"></span>
+                `;
+                
+                container.appendChild(problemElement);
+            }
+        }
+        
+        // 生成3道竖式计算题
+        function generateVerticalProblems() {
+            const container = document.getElementById('vertical-problems');
+            container.innerHTML = '';
+            
+            // 清空答案数组
+            allAnswers.vertical = [];
+            
+            for (let i = 0; i < 3; i++) {
+                let problem = '';
+                let num1 = 0;
+                let num2 = 0;
+                let operator = '';
+                let result = 0;
+                
+                // 随机选择题目类型
+                const problemType = Math.floor(Math.random() * 3); // 0: 加法, 1: 减法, 2: 乘法
+                
+                switch (problemType) {
+                    case 0: // 加法
+                        num1 = Math.floor(Math.random() * 900) + 100; // 三位数
+                        num2 = Math.floor(Math.random() * 900) + 100; // 三位数
+                        operator = '+';
+                        result = num1 + num2;
+                        break;
+                        
+                    case 1: // 减法
+                        num1 = Math.floor(Math.random() * 900) + 100; // 三位数
+                        num2 = Math.floor(Math.random() * num1); // 确保结果非负
+                        operator = '-';
+                        result = num1 - num2;
+                        break;
+                        
+                    case 2: // 乘法
+                        num1 = Math.floor(Math.random() * 90) + 10; // 两位数
+                        num2 = Math.floor(Math.random() * 9) + 1; // 一位数
+                        operator = '×';
+                        result = num1 * num2;
+                        break;
+                }
+                
+                // 保存答案
+                allAnswers.vertical.push({
+                    problem: `${num1} ${operator} ${num2}`,
+                    result: result
+                });
+                
+                // 创建题目元素
+                const problemElement = document.createElement('div');
+                problemElement.className = 'math-problem';
+                problemElement.innerHTML = `
+                    <div class="mb-1">${i + 1}.</div>
+                    <div class="flex flex-col items-end">
+                        <div class="text-right">${num1.toString().padStart(10)}</div>
+                        <div class="flex items-center justify-end">
+                            <span class="mr-2">${operator}</span>
+                            <span>${num2.toString().padStart(9)}</span>
+                        </div>
+                        <div class="border-b-2 border-black w-32 mt-1"></div>
+                        <div class="h-20 w-32 border-b border-r border-l border-gray-300 mt-1"></div>
+                    </div>
+                `;
+                
+                container.appendChild(problemElement);
+            }
+        }
+        
+        // 生成6道简便计算/脱式计算题
+        function generateSimplifiedProblems() {
+            const container = document.getElementById('simplified-problems');
+            container.innerHTML = '';
+            
+            // 清空答案数组
+            allAnswers.simplified = [];
+            
+            // 运算定律题目模板及答案计算
+            const problemTemplates = [
+                // 加法交换律和结合律
+                () => {
+                    const a = Math.floor(Math.random() * 100);
+                    const b = Math.floor(Math.random() * 100);
+                    const c = Math.floor(Math.random() * 100);
+                    const problem = `(${a} + ${b}) + ${c}`;
+                    const result = a + b + c;
+                    const steps = `= ${a} + (${b} + ${c}) = ${a} + ${b + c} = ${result}`;
+                    return { problem, result, steps };
+                },
+                // 乘法交换律和结合律
+                () => {
+                    const a = Math.floor(Math.random() * 10);
+                    const b = Math.floor(Math.random() * 10);
+                    const c = Math.floor(Math.random() * 10);
+                    const problem = `(${a} × ${b}) × ${c}`;
+                    const result = a * b * c;
+                    const steps = `= ${a} × (${b} × ${c}) = ${a} × ${b * c} = ${result}`;
+                    return { problem, result, steps };
+                },
+                // 乘法分配律
+                () => {
+                    const a = Math.floor(Math.random() * 10);
+                    const b = Math.floor(Math.random() * 100);
+                    const c = Math.floor(Math.random() * 100);
+                    const problem = `${a} × (${b} + ${c})`;
+                    const result = a * b + a * c;
+                    const steps = `= ${a} × ${b} + ${a} × ${c} = ${a * b} + ${a * c} = ${result}`;
+                    return { problem, result, steps };
+                },
+                // 减法性质
+                () => {
+                    const a = Math.floor(Math.random() * 200) + 100;
+                    const b = Math.floor(Math.random() * 100);
+                    const c = Math.floor(Math.random() * 100);
+                    const problem = `${a} - ${b} - ${c}`;
+                    const result = a - (b + c);
+                    const steps = `= ${a} - (${b} + ${c}) = ${a} - ${b + c} = ${result}`;
+                    return { problem, result, steps };
+                },
+                // 除法性质
+                () => {
+                    const b = Math.floor(Math.random() * 9) + 1;
+                    const c = Math.floor(Math.random() * 9) + 1;
+                    const a = Math.floor(Math.random() * 100) * b * c;
+                    const problem = `${a} ÷ ${b} ÷ ${c}`;
+                    const result = a / (b * c);
+                    const steps = `= ${a} ÷ (${b} × ${c}) = ${a} ÷ ${b * c} = ${result}`;
+                    return { problem, result, steps };
+                },
+                // 小数加减法
+                () => {
+                    const a = (Math.floor(Math.random() * 100) / 10).toFixed(1);
+                    const b = (Math.floor(Math.random() * 100) / 10).toFixed(1);
+                    const operator = Math.random() > 0.5 ? '+' : '-';
+                    const problem = `${a} ${operator} ${b}`;
+                    const result = operator === '+' ? parseFloat(a) + parseFloat(b) : parseFloat(a) - parseFloat(b);
+                    return { problem, result: result.toFixed(1) };
+                },
+                // 小数乘法
+                () => {
+                    const a = (Math.floor(Math.random() * 100) / 10).toFixed(1);
+                    const b = Math.floor(Math.random() * 10);
+                    const problem = `${a} × ${b}`;
+                    const result = parseFloat(a) * b;
+                    return { problem, result: result.toFixed(1) };
+                },
+                // 小数除法
+                () => {
+                    const b = (Math.floor(Math.random() * 9) + 1).toFixed(1);
+                    const result = Math.floor(Math.random() * 10);
+                    const a = (result * parseFloat(b)).toFixed(1);
+                    const problem = `${a} ÷ ${b}`;
+                    return { problem, result };
+                }
+            ];
+            
+            // 随机选择6个不同类型的题目
+            const selectedTemplates = [];
+            while (selectedTemplates.length < 6) {
+                const index = Math.floor(Math.random() * problemTemplates.length);
+                if (!selectedTemplates.includes(index)) {
+                    selectedTemplates.push(index);
+                }
+            }
+            
+            // 生成题目
+            selectedTemplates.forEach((templateIndex, i) => {
+                const problemData = problemTemplates[templateIndex]();
+                
+                // 保存答案
+                allAnswers.simplified.push(problemData);
+                
+                // 创建题目元素
+                const problemElement = document.createElement('div');
+                problemElement.className = 'math-problem';
+                problemElement.innerHTML = `
+                    <div class="flex items-start">
+                        <span class="font-medium mr-2">${i + 1}.</span>
+                        <div class="flex-1">
+                            <div class="mb-2">${problemData.problem} = </div>
+                            <div class="h-16 w-full border border-gray-300 rounded"></div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(problemElement);
+            });
+        }
+        
+        // 打印练习
+        function printProblems() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
