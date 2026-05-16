@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>四年级下册数学每日练习</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
     <link rel="icon" href="../../../sources/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="../../../sources/favicon.ico">
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- seedrandom.js 用于生成确定的随机数序列 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -89,7 +93,7 @@
         <header class="mb-4 header-container">
             <div class="header-main">
                 <h1 class="text-3xl font-bold text-accent mb-2">四年级下册数学每日练习</h1>
-                <p class="text-neutral-dark"><b>林耀爱学习</b> · 人教版 · 四则运算 · 运算定律 · 小数计算</p>
+                <p class="text-neutral-dark"><b><img src="../../../sources/favicon.png" style="display: inline; width: 20px; height: auto;" class="text-lg text-gray-600">林耀爱学习（主站附属应用）</b> · 人教版 · 四则运算 · 运算定律 · 小数计算</p>
             </div>
             <div class="print-info">
                 <div><i class="fa fa-calendar mr-1"></i><span id="print-date"></span></div>
@@ -113,7 +117,7 @@
                     <div class="flex space-x-2">
                         <button id="generate-btn" class="btn-primary flex items-center">
                             <i class="fa fa-refresh mr-2"></i>
-                            生成题目
+                            重新生成
                         </button>
                         <button id="show-answer-btn" class="btn-success flex items-center">
                             <i class="fa fa-check-circle mr-2"></i>
@@ -145,7 +149,7 @@
             <div class="card">
                 <h2 class="section-title">
                     <i class="fa fa-pencil"></i>
-                    二、竖式计算（3道）
+                    二、竖式计算（3道，需验算）
                 </h2>
                 <div id="vertical-problems" class="space-y-6">
                     <!-- 竖式计算题将在这里生成 -->
@@ -175,8 +179,8 @@
             </div>
         </div>
 
-        <footer class="text-center text-neutral-dark text-sm"></footer>
-        <script src="../../../sources/js/copyright/copyright-parse.js" type="module"></script>
+        <!-- 页脚信息 -->
+        <footer></footer><script src="../../../sources/js/copyright/copyright-parse.js" type="module"></script>
     </div>
 
     <script>
@@ -197,16 +201,31 @@
             generateAllProblems();
             
             // 绑定按钮事件
-            document.getElementById('generate-btn').addEventListener('click', generateProblemsFromInput);
+            document.getElementById('generate-btn').addEventListener('click', generateNewRandomSeed);
             document.getElementById('show-answer-btn').addEventListener('click', toggleAnswers);
             document.getElementById('print-btn').addEventListener('click', printProblems);
+            document.getElementById('seed-input').addEventListener('change', generateProblemsFromInput);
         });
+        
+        // 获取当天凌晨的时间戳作为基础种子
+        function getTodaySeed() {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            return Math.floor(today.getTime() / 1000);
+        }
+        
+        // 获取明天凌晨的时间戳
+        function getTomorrowSeed() {
+            const now = new Date();
+            const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            return Math.floor(tomorrow.getTime() / 1000);
+        }
         
         // 设置当前日期和种子
         function setCurrentDateAndSeed() {
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            currentSeed = Math.floor(today.getTime() / 1000);
+            currentSeed = getTodaySeed();
             
             // 显示日期和种子
             const formattedDate = formatDate(today);
@@ -241,6 +260,39 @@
             } else {
                 alert('请输入有效的种子数值！');
                 seedInput.value = currentSeed;
+            }
+        }
+        
+        // 生成新的随机种子
+        function generateNewRandomSeed() {
+            try {
+                const todaySeed = getTodaySeed();
+                const tomorrowSeed = getTomorrowSeed();
+                const seedInput = document.getElementById('seed-input');
+                const inputSeed = parseInt(seedInput.value);
+                
+                // 检查是否是用户手动输入的种子（不在今天范围内）
+                if (inputSeed < todaySeed || inputSeed >= tomorrowSeed) {
+                    // 如果是手动输入的种子，返回今天的起始种子
+                    currentSeed = todaySeed;
+                } else {
+                    // 否则正常递增
+                    currentSeed = currentSeed + 1;
+                    
+                    // 如果种子超过明天凌晨，则循环回到今天的种子
+                    if (currentSeed >= tomorrowSeed) {
+                        currentSeed = todaySeed;
+                    }
+                }
+                
+                document.getElementById('seed-input').value = currentSeed;
+                document.getElementById('print-seed').textContent = currentSeed;
+                generateAllProblems();
+                // 隐藏答案区域
+                document.getElementById('answer-section').classList.add('hidden');
+            } catch (error) {
+                console.error('重新生成按钮出错:', error);
+                alert('重新生成时出错，请刷新页面重试');
             }
         }
         
@@ -292,7 +344,7 @@
             const verticalAnswersDiv = document.createElement('div');
             verticalAnswersDiv.className = 'mb-6';
             verticalAnswersDiv.innerHTML = `
-                <h3 class="text-lg font-bold text-accent mb-3">二、竖式计算题答案</h3>
+                <h3 class="text-lg font-bold text-accent mb-3">二、竖式计算题答案（含验算）</h3>
                 <div class="space-y-6" id="vertical-answers">
                 </div>
             `;
@@ -303,9 +355,66 @@
             allAnswers.vertical.forEach((answer, index) => {
                 const answerElement = document.createElement('div');
                 answerElement.className = 'math-problem answer';
-                answerElement.innerHTML = `
-                    <div class="mb-1">${index + 1}. ${answer.problem} = ${answer.result}</div>
+                
+                // 解析题目和结果
+                const [num1, operator, num2] = answer.problem.split(' ');
+                const result = answer.result;
+                
+                // 创建竖式计算显示
+                let verticalHTML = `
+                    <div class="mb-2">${index + 1}. ${answer.problem} = ${result}</div>
+                    <div class="flex items-start w-full mb-4">
+                        <!-- 竖式计算答案 -->
+                        <div class="flex flex-col items-end w-[45%]">
+                            <div class="text-right text-lg">${num1.toString().padStart(12)}</div>
+                            <div class="flex items-center justify-end text-lg">
+                                <span class="mr-2 font-medium">${operator}</span>
+                                <span>${num2.toString().padStart(11)}</span>
+                            </div>
+                            <div class="border-b-2 border-black w-36 mt-1"></div>
+                            <div class="text-right text-lg font-bold mt-1">${result.toString().padStart(12)}</div>
+                        </div>
+                        
+                        <!-- 验算标签 -->
+                        <div class="flex items-center px-4 text-center whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-700">验算：</div>
+                        </div>
+                        
+                        <!-- 验算答案 -->
+                        <div class="flex flex-col items-end w-[45%]">
                 `;
+                
+                // 根据运算符生成不同的验算方式
+                if (operator === '+') {
+                    // 加法验算：交换两个数的位置
+                    verticalHTML += `
+                        <div class="text-right text-lg">${num2.toString().padStart(12)}</div>
+                        <div class="flex items-center justify-end text-lg">
+                            <span class="mr-2 font-medium">+</span>
+                            <span>${num1.toString().padStart(11)}</span>
+                        </div>
+                        <div class="border-b-2 border-black w-36 mt-1"></div>
+                        <div class="text-right text-lg font-bold mt-1">${result.toString().padStart(12)}</div>
+                    `;
+                } else if (operator === '-') {
+                    // 减法验算：差 + 减数 = 被减数
+                    verticalHTML += `
+                        <div class="text-right text-lg">${result.toString().padStart(12)}</div>
+                        <div class="flex items-center justify-end text-lg">
+                            <span class="mr-2 font-medium">+</span>
+                            <span>${num2.toString().padStart(11)}</span>
+                        </div>
+                        <div class="border-b-2 border-black w-36 mt-1"></div>
+                        <div class="text-right text-lg font-bold mt-1">${num1.toString().padStart(12)}</div>
+                    `;
+                }
+                
+                verticalHTML += `
+                        </div>
+                    </div>
+                `;
+                
+                answerElement.innerHTML = verticalHTML;
                 verticalAnswersContainer.appendChild(answerElement);
             });
             
@@ -348,6 +457,30 @@
             generateSimplifiedProblems();
         }
         
+        // 确保数值包含小数部分
+        function ensureDecimal(num) {
+            if (Number.isInteger(num)) {
+                return num + 0.01; // 添加最小的小数部分
+            }
+            return num;
+        }
+        
+        // 格式化小数，限制最多两位小数并保留小数部分
+        function formatDecimal(num) {
+            if (typeof num === 'string') {
+                num = parseFloat(num);
+            }
+            // 先四舍五入到两位小数
+            const rounded = Math.round(num * 100) / 100;
+            // 确保至少显示一位小数
+            if (Number.isInteger(rounded)) {
+                return rounded.toFixed(1);
+            } else {
+                // 对于小数，确保显示到两位小数
+                return rounded.toFixed(2).replace(/\.?0+$/, '');
+            }
+        }
+        
         // 生成10道口算题
         function generateOralProblems() {
             const container = document.getElementById('oral-problems');
@@ -356,57 +489,44 @@
             // 清空答案数组
             allAnswers.oral = [];
             
+            // 生成10道口算题
+            const oralProblems = [];
             for (let i = 0; i < 10; i++) {
-                let problem = '';
-                let answer = 0;
+                const types = ['addition', 'subtraction'];
+                const type = types[Math.floor(Math.random() * types.length)];
                 
-                // 随机选择题目类型
-                const problemType = Math.floor(Math.random() * 4); // 0: 加法, 1: 减法, 2: 乘法, 3: 除法
-                
-                switch (problemType) {
-                    case 0: // 加法
-                        const addNum1 = Math.floor(Math.random() * 100);
-                        const addNum2 = Math.floor(Math.random() * 100);
-                        answer = addNum1 + addNum2;
-                        problem = `${addNum1} + ${addNum2} = `;
+                let num1, num2, result;
+                switch (type) {
+                    case 'addition':
+                        // 生成最多两位小数的数值，确保包含小数部分
+                        num1 = ensureDecimal(Math.floor(Math.random() * 100) + (Math.floor(Math.random() * 99) + 1) / 100); // 0.01-99.99
+                        num2 = ensureDecimal(Math.floor(Math.random() * 100) + (Math.floor(Math.random() * 99) + 1) / 100); // 0.01-99.99
+                        result = num1 + num2;
                         break;
-                        
-                    case 1: // 减法
-                        const subNum1 = Math.floor(Math.random() * 100);
-                        const subNum2 = Math.floor(Math.random() * (subNum1 + 1)); // 确保结果非负
-                        answer = subNum1 - subNum2;
-                        problem = `${subNum1} - ${subNum2} = `;
-                        break;
-                        
-                    case 2: // 乘法
-                        const mulNum1 = Math.floor(Math.random() * 10);
-                        const mulNum2 = Math.floor(Math.random() * 10);
-                        answer = mulNum1 * mulNum2;
-                        problem = `${mulNum1} × ${mulNum2} = `;
-                        break;
-                        
-                    case 3: // 除法
-                        const divNum2 = Math.floor(Math.random() * 9) + 1; // 1-9
-                        const divResult = Math.floor(Math.random() * 10); // 0-9
-                        const divNum1 = divNum2 * divResult;
-                        answer = divResult;
-                        problem = `${divNum1} ÷ ${divNum2} = `;
+                    case 'subtraction':
+                        num1 = ensureDecimal(Math.floor(Math.random() * 100) + (Math.floor(Math.random() * 99) + 1) / 100); // 0.01-99.99
+                        num2 = ensureDecimal((Math.floor(Math.random() * Math.floor((num1 - 0.01) * 100)) / 100) + (Math.floor(Math.random() * 99) + 1) / 100); // 确保结果为正且带小数
+                        result = num1 - num2;
                         break;
                 }
                 
-                // 保存答案
-                allAnswers.oral.push(answer);
-                
-                // 创建题目元素
+                oralProblems.push({
+                    problem: `${formatDecimal(num1)} ${type === 'addition' ? '+' : '-'} ${formatDecimal(num2)} =`,
+                    result: formatDecimal(result)
+                });
+            }
+            
+            // 显示题目
+            oralProblems.forEach((problem, index) => {
                 const problemElement = document.createElement('div');
                 problemElement.className = 'math-problem flex items-center justify-between';
                 problemElement.innerHTML = `
-                    <span class="font-medium">${i + 1}. ${problem}</span>
+                    <span class="font-medium">${index + 1}. ${problem.problem}</span>
                     <span class="w-16 h-6 bg-white border border-gray-300 rounded"></span>
                 `;
-                
                 container.appendChild(problemElement);
-            }
+                allAnswers.oral.push(problem.result);
+            });
         }
         
         // 生成3道竖式计算题
@@ -417,64 +537,219 @@
             // 清空答案数组
             allAnswers.vertical = [];
             
+            // 竖式计算题目生成
+            const verticalProblems = [];
             for (let i = 0; i < 3; i++) {
-                let problem = '';
-                let num1 = 0;
-                let num2 = 0;
-                let operator = '';
-                let result = 0;
-                
-                // 随机选择题目类型
-                const problemType = Math.floor(Math.random() * 3); // 0: 加法, 1: 减法, 2: 乘法
-                
-                switch (problemType) {
-                    case 0: // 加法
-                        num1 = Math.floor(Math.random() * 900) + 100; // 三位数
-                        num2 = Math.floor(Math.random() * 900) + 100; // 三位数
-                        operator = '+';
-                        result = num1 + num2;
-                        break;
-                        
-                    case 1: // 减法
-                        num1 = Math.floor(Math.random() * 900) + 100; // 三位数
-                        num2 = Math.floor(Math.random() * num1); // 确保结果非负
-                        operator = '-';
-                        result = num1 - num2;
-                        break;
-                        
-                    case 2: // 乘法
-                        num1 = Math.floor(Math.random() * 90) + 10; // 两位数
-                        num2 = Math.floor(Math.random() * 9) + 1; // 一位数
-                        operator = '×';
-                        result = num1 * num2;
-                        break;
+                const type = Math.random() < 0.5 ? 'addition' : 'subtraction';
+                if (type === 'addition') {
+                    const num1 = ensureDecimal(Math.floor(Math.random() * 90) + (Math.floor(Math.random() * 99) + 1) / 100); // 0.01-99.99
+                    const num2 = ensureDecimal(Math.floor(Math.random() * 90) + (Math.floor(Math.random() * 99) + 1) / 100); // 0.01-99.99
+                    const result = num1 + num2;
+                    verticalProblems.push({ type: 'addition', num1: formatDecimal(num1), num2: formatDecimal(num2), result: formatDecimal(result) });
+                } else {
+                    const num1 = ensureDecimal(Math.floor(Math.random() * 90) + (Math.floor(Math.random() * 99) + 1) / 100); // 0.01-99.99
+                    const num2 = ensureDecimal((Math.floor(Math.random() * Math.floor((num1 - 0.01) * 100)) / 100) + (Math.floor(Math.random() * 99) + 1) / 100); // 确保结果为正且带小数
+                    const result = num1 - num2;
+                    verticalProblems.push({ type: 'subtraction', num1: formatDecimal(num1), num2: formatDecimal(num2), result: formatDecimal(result) });
                 }
-                
-                // 保存答案
-                allAnswers.vertical.push({
-                    problem: `${num1} ${operator} ${num2}`,
-                    result: result
-                });
-                
-                // 创建题目元素
+            }
+            
+            // 显示题目
+            verticalProblems.forEach((problem, index) => {
                 const problemElement = document.createElement('div');
                 problemElement.className = 'math-problem';
                 problemElement.innerHTML = `
-                    <div class="mb-1">${i + 1}.</div>
-                    <div class="flex flex-col items-end">
-                        <div class="text-right">${num1.toString().padStart(10)}</div>
-                        <div class="flex items-center justify-end">
-                            <span class="mr-2">${operator}</span>
-                            <span>${num2.toString().padStart(9)}</span>
+                    <div class="mb-1">${index + 1}.</div>
+                    <div class="flex items-start w-full">
+                        <!-- 竖式计算区域 -->
+                        <div class="flex flex-col items-end w-[45%]">
+                            <div class="text-right text-lg">${problem.num1.toString().padStart(12)}</div>
+                            <div class="flex items-center justify-end text-lg">
+                                <span class="mr-2 font-medium">${problem.type === 'addition' ? '+' : '-'}</span>
+                                <span>${problem.num2.toString().padStart(11)}</span>
+                            </div>
+                            <div class="border-b-2 border-black w-36 mt-1"></div>
+                            <div class="h-32 w-36 border-b border-r border-l border-gray-300 mt-1"></div>
                         </div>
-                        <div class="border-b-2 border-black w-32 mt-1"></div>
-                        <div class="h-20 w-32 border-b border-r border-l border-gray-300 mt-1"></div>
+                        
+                        <!-- 验算标签 -->
+                        <div class="flex items-center px-4 text-center whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-700">验算：</div>
+                        </div>
+                        
+                        <!-- 验算区域 - 预留空白空间 -->
+                        <div class="flex flex-col items-end w-[45%]">
+                            <div class="h-24 w-36"></div>
+                        </div>
                     </div>
                 `;
-                
                 container.appendChild(problemElement);
-            }
+                allAnswers.vertical.push({
+                    problem: `${problem.num1} ${problem.type === 'addition' ? '+' : '-'} ${problem.num2}`,
+                    result: problem.result
+                });
+            });
         }
+        
+        // 运算定律题目模板及答案计算 - 仅包含加减法简便运算
+        const simplifiedTemplates = [
+            // 模板1: D1 + D2 + D3 (D1+D3=整数)
+            () => {
+                const intPart = Math.floor(Math.random() * 40) + 10;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart + decimalPart;
+                const d3 = formatDecimal(10 - decimalPart);
+                const d2 = formatDecimal(Math.floor(Math.random() * 30) + 5 + (Math.floor(Math.random() * 99) + 1) / 100);
+                const problem = `${formatDecimal(d1)} + ${formatDecimal(d2)} + ${formatDecimal(d3)}`;
+                const result = d1 + parseFloat(d2) + parseFloat(d3);
+                const steps = `= (${formatDecimal(d1)} + ${formatDecimal(d3)}) + ${formatDecimal(d2)} = ${intPart + 10} + ${formatDecimal(d2)} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板2: D1 + D2 - D3 (D1与D3相减可得整数)
+            () => {
+                const intPart = Math.floor(Math.random() * 40) + 15;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart + decimalPart;
+                const d3 = (intPart - 10) + decimalPart;
+                const d2 = formatDecimal(Math.floor(Math.random() * 25) + 8 + (Math.floor(Math.random() * 99) + 1) / 100);
+                const problem = `${formatDecimal(d1)} + ${formatDecimal(d2)} - ${formatDecimal(d3)}`;
+                const result = d1 + parseFloat(d2) - parseFloat(d3);
+                const steps = `= (${formatDecimal(d1)} - ${formatDecimal(d3)}) + ${formatDecimal(d2)} = ${10} + ${formatDecimal(d2)} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板3: D1 - D2 + D3 (D1+D3=整数)
+            () => {
+                const intPart = Math.floor(Math.random() * 35) + 12;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart + decimalPart;
+                const d3 = formatDecimal(15 - decimalPart);
+                const d2 = formatDecimal(Math.floor(Math.random() * 20) + 6 + (Math.floor(Math.random() * 99) + 1) / 100);
+                const problem = `${formatDecimal(d1)} - ${formatDecimal(d2)} + ${formatDecimal(d3)}`;
+                const result = d1 - parseFloat(d2) + parseFloat(d3);
+                const steps = `= (${formatDecimal(d1)} + ${formatDecimal(d3)}) - ${formatDecimal(d2)} = ${intPart + 15} - ${formatDecimal(d2)} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板4: D1 - (D2+D3) (D1与D3相减可得整数)
+            () => {
+                const intPart = Math.floor(Math.random() * 45) + 18;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart + decimalPart;
+                const d3 = formatDecimal((intPart - 8) + decimalPart);
+                const d2 = formatDecimal(Math.floor(Math.random() * 22) + 7 + (Math.floor(Math.random() * 99) + 1) / 100);
+                const problem = `${formatDecimal(d1)} - (${formatDecimal(d2)} + ${formatDecimal(d3)})`;
+                const result = d1 - (parseFloat(d2) + parseFloat(d3));
+                const steps = `= ${formatDecimal(d1)} - ${formatDecimal(d3)} - ${formatDecimal(d2)} = ${8} - ${formatDecimal(d2)} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板5: D1 - D2 - D3 (D2+D3=整数)
+            () => {
+                const intPart = Math.floor(Math.random() * 30) + 25;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d2 = intPart - 12 + decimalPart;
+                const d3 = formatDecimal(12 - decimalPart);
+                const d1 = formatDecimal(Math.floor(Math.random() * 50) + 30 + (Math.floor(Math.random() * 99) + 1) / 100);
+                const problem = `${formatDecimal(d1)} - ${formatDecimal(d2)} - ${formatDecimal(d3)}`;
+                const result = parseFloat(d1) - d2 - parseFloat(d3);
+                const steps = `= ${formatDecimal(d1)} - (${formatDecimal(d2)} + ${formatDecimal(d3)}) = ${formatDecimal(d1)} - ${intPart} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板6: D1 - (D2-D3) (D1+D3=整数)
+            () => {
+                const intPart = Math.floor(Math.random() * 38) + 14;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart + decimalPart;
+                const d3 = formatDecimal(12 - decimalPart);
+                const d2 = formatDecimal(Math.floor(Math.random() * 28) + 10 + (Math.floor(Math.random() * 99) + 1) / 100);
+                const problem = `${formatDecimal(d1)} - (${formatDecimal(d2)} - ${formatDecimal(d3)})`;
+                const result = d1 - (parseFloat(d2) - parseFloat(d3));
+                const steps = `= ${formatDecimal(d1)} + ${formatDecimal(d3)} - ${formatDecimal(d2)} = ${intPart + 12} - ${formatDecimal(d2)} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板7: D1 + D2 + D3 + D4 (D1+D3, D2+D4=整数)
+            () => {
+                const intPart1 = Math.floor(Math.random() * 25) + 10;
+                const intPart2 = Math.floor(Math.random() * 20) + 8;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = ensureDecimal(intPart1 + decimalPart);
+                const d3 = formatDecimal(10 - decimalPart);
+                const d2 = formatDecimal(intPart2 + (0.99 - decimalPart));
+                const d4 = formatDecimal(10 - (0.99 - decimalPart));
+                const problem = `${formatDecimal(d1)} + ${formatDecimal(d2)} + ${formatDecimal(d3)} + ${formatDecimal(d4)}`;
+                const result = d1 + parseFloat(d2) + parseFloat(d3) + parseFloat(d4);
+                const steps = `= (${formatDecimal(d1)} + ${formatDecimal(d3)}) + (${formatDecimal(d2)} + ${formatDecimal(d4)}) = ${intPart1 + 10} + ${intPart2 + 10} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板8: D1 - D2 - D3 + D4 (D1+D4, D2+D3=整数)
+            () => {
+                const intPart1 = Math.floor(Math.random() * 25) + 12;
+                const intPart2 = Math.floor(Math.random() * 20) + 15;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart1 + decimalPart;
+                const d4 = formatDecimal(15 - decimalPart);
+                const d2 = formatDecimal(intPart2 + (0.99 - decimalPart));
+                const d3 = formatDecimal(10 - (0.99 - decimalPart));
+                const problem = `${formatDecimal(d1)} - ${formatDecimal(d2)} - ${formatDecimal(d3)} + ${formatDecimal(d4)}`;
+                const result = d1 - parseFloat(d2) - parseFloat(d3) + parseFloat(d4);
+                const steps = `= (${formatDecimal(d1)} + ${formatDecimal(d4)}) - (${formatDecimal(d2)} + ${formatDecimal(d3)}) = ${intPart1 + 15} - ${intPart2 + 10} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板9: D1 - (D2-D3) + D4 (D2与D3相减可得整数, D1+D4=整数)
+            () => {
+                const intPart1 = Math.floor(Math.random() * 30) + 15;
+                const intPart2 = Math.floor(Math.random() * 20) + 10;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart1 + decimalPart;
+                const d4 = formatDecimal(12 - decimalPart);
+                const d2 = intPart2 + decimalPart;
+                const d3 = formatDecimal((intPart2 - 5) + decimalPart);
+                const problem = `${formatDecimal(d1)} - (${formatDecimal(d2)} - ${formatDecimal(d3)}) + ${formatDecimal(d4)}`;
+                const result = d1 - (parseFloat(d2) - parseFloat(d3)) + parseFloat(d4);
+                const steps = `= ${formatDecimal(d1)} - ${5} + ${formatDecimal(d4)} = (${formatDecimal(d1)} + ${formatDecimal(d4)}) - 5 = ${intPart1 + 12} - 5 = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板10: D1 - [D2-(D3-D4)] (D1+D3, D2+D4=整数)
+            () => {
+                const intPart1 = Math.floor(Math.random() * 28) + 13;
+                const intPart2 = Math.floor(Math.random() * 20) + 12;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart1 + decimalPart;
+                const d3 = formatDecimal(11 - decimalPart);
+                const d2 = formatDecimal(intPart2 + (0.99 - decimalPart));
+                const d4 = formatDecimal(10 - (0.99 - decimalPart));
+                const problem = `${formatDecimal(d1)} - [${formatDecimal(d2)} - (${formatDecimal(d3)} - ${formatDecimal(d4)})]`;
+                const result = d1 - (parseFloat(d2) - (parseFloat(d3) - parseFloat(d4)));
+                const steps = `= ${formatDecimal(d1)} - [${formatDecimal(d2)} - ${formatDecimal(d3 - d4)}] = ${formatDecimal(d1)} - ${formatDecimal(d2 - (d3 - d4))} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板11: (D1-D2) - (D3-D4) (D1-D3, D2-D4=整数)
+            () => {
+                const intPart1 = Math.floor(Math.random() * 35) + 20;
+                const intPart2 = Math.floor(Math.random() * 15) + 10;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart1 + decimalPart;
+                const d3 = (intPart1 - 8) + decimalPart;
+                const d2 = intPart2 + decimalPart;
+                const d4 = (intPart2 - 3) + decimalPart;
+                const problem = `(${formatDecimal(d1)} - ${formatDecimal(d2)}) - (${formatDecimal(d3)} - ${formatDecimal(d4)})`;
+                const result = (d1 - parseFloat(d2)) - (parseFloat(d3) - parseFloat(d4));
+                const steps = `= (${formatDecimal(d1)} - ${formatDecimal(d3)}) - (${formatDecimal(d2)} - ${formatDecimal(d4)}) = ${8} - ${3} = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            },
+            // 模板12: [D1-(D2-D3)] + D4 (D1-D2, D3+D4=整数)
+            () => {
+                const intPart1 = Math.floor(Math.random() * 32) + 16;
+                const intPart2 = Math.floor(Math.random() * 22) + 14;
+                const decimalPart = (Math.floor(Math.random() * 99) + 1) / 100; // 0.01-0.99
+                const d1 = intPart1 + decimalPart;
+                const d2 = intPart2 + decimalPart;
+                const d3 = formatDecimal((intPart2 - 6) + decimalPart);
+                const d4 = formatDecimal(10 - decimalPart);
+                const problem = `[${formatDecimal(d1)} - (${formatDecimal(d2)} - ${formatDecimal(d3)})] + ${formatDecimal(d4)}`;
+                const result = (d1 - (parseFloat(d2) - parseFloat(d3))) + parseFloat(d4);
+                const steps = `= [${formatDecimal(d1)} - ${6}] + ${formatDecimal(d4)} = (${formatDecimal(d1 - 6)} + ${formatDecimal(d4)}) = ${formatDecimal(result)}`;
+                return { problem, result: formatDecimal(result), steps };
+            }
+        ];
         
         // 生成6道简便计算/脱式计算题
         function generateSimplifiedProblems() {
@@ -484,115 +759,74 @@
             // 清空答案数组
             allAnswers.simplified = [];
             
-            // 运算定律题目模板及答案计算
-            const problemTemplates = [
-                // 加法交换律和结合律
-                () => {
-                    const a = Math.floor(Math.random() * 100);
-                    const b = Math.floor(Math.random() * 100);
-                    const c = Math.floor(Math.random() * 100);
-                    const problem = `(${a} + ${b}) + ${c}`;
-                    const result = a + b + c;
-                    const steps = `= ${a} + (${b} + ${c}) = ${a} + ${b + c} = ${result}`;
-                    return { problem, result, steps };
-                },
-                // 乘法交换律和结合律
-                () => {
-                    const a = Math.floor(Math.random() * 10);
-                    const b = Math.floor(Math.random() * 10);
-                    const c = Math.floor(Math.random() * 10);
-                    const problem = `(${a} × ${b}) × ${c}`;
-                    const result = a * b * c;
-                    const steps = `= ${a} × (${b} × ${c}) = ${a} × ${b * c} = ${result}`;
-                    return { problem, result, steps };
-                },
-                // 乘法分配律
-                () => {
-                    const a = Math.floor(Math.random() * 10);
-                    const b = Math.floor(Math.random() * 100);
-                    const c = Math.floor(Math.random() * 100);
-                    const problem = `${a} × (${b} + ${c})`;
-                    const result = a * b + a * c;
-                    const steps = `= ${a} × ${b} + ${a} × ${c} = ${a * b} + ${a * c} = ${result}`;
-                    return { problem, result, steps };
-                },
-                // 减法性质
-                () => {
-                    const a = Math.floor(Math.random() * 200) + 100;
-                    const b = Math.floor(Math.random() * 100);
-                    const c = Math.floor(Math.random() * 100);
-                    const problem = `${a} - ${b} - ${c}`;
-                    const result = a - (b + c);
-                    const steps = `= ${a} - (${b} + ${c}) = ${a} - ${b + c} = ${result}`;
-                    return { problem, result, steps };
-                },
-                // 除法性质
-                () => {
-                    const b = Math.floor(Math.random() * 9) + 1;
-                    const c = Math.floor(Math.random() * 9) + 1;
-                    const a = Math.floor(Math.random() * 100) * b * c;
-                    const problem = `${a} ÷ ${b} ÷ ${c}`;
-                    const result = a / (b * c);
-                    const steps = `= ${a} ÷ (${b} × ${c}) = ${a} ÷ ${b * c} = ${result}`;
-                    return { problem, result, steps };
-                },
-                // 小数加减法
-                () => {
-                    const a = (Math.floor(Math.random() * 100) / 10).toFixed(1);
-                    const b = (Math.floor(Math.random() * 100) / 10).toFixed(1);
-                    const operator = Math.random() > 0.5 ? '+' : '-';
-                    const problem = `${a} ${operator} ${b}`;
-                    const result = operator === '+' ? parseFloat(a) + parseFloat(b) : parseFloat(a) - parseFloat(b);
-                    return { problem, result: result.toFixed(1) };
-                },
-                // 小数乘法
-                () => {
-                    const a = (Math.floor(Math.random() * 100) / 10).toFixed(1);
-                    const b = Math.floor(Math.random() * 10);
-                    const problem = `${a} × ${b}`;
-                    const result = parseFloat(a) * b;
-                    return { problem, result: result.toFixed(1) };
-                },
-                // 小数除法
-                () => {
-                    const b = (Math.floor(Math.random() * 9) + 1).toFixed(1);
-                    const result = Math.floor(Math.random() * 10);
-                    const a = (result * parseFloat(b)).toFixed(1);
-                    const problem = `${a} ÷ ${b}`;
-                    return { problem, result };
-                }
-            ];
-            
-            // 随机选择6个不同类型的题目
-            const selectedTemplates = [];
-            while (selectedTemplates.length < 6) {
-                const index = Math.floor(Math.random() * problemTemplates.length);
-                if (!selectedTemplates.includes(index)) {
-                    selectedTemplates.push(index);
+            // 随机选择3个简便运算模板
+            const simplifiedIndices = [];
+            while (simplifiedIndices.length < 3) {
+                const index = Math.floor(Math.random() * simplifiedTemplates.length);
+                if (!simplifiedIndices.includes(index)) {
+                    simplifiedIndices.push(index);
                 }
             }
             
-            // 生成题目
-            selectedTemplates.forEach((templateIndex, i) => {
-                const problemData = problemTemplates[templateIndex]();
+            // 生成3道简便运算题
+            const simplifiedProblems = simplifiedIndices.map(index => simplifiedTemplates[index]());
+            
+            // 生成3道普通脱式计算题
+            const regularProblems = [];
+            for (let i = 0; i < 3; i++) {
+                const numOperations = Math.floor(Math.random() * 2) + 2; // 2-3个运算
+                let problem = '';
+                let result = 0;
                 
-                // 保存答案
-                allAnswers.simplified.push(problemData);
+                if (numOperations === 2) {
+                    const num1 = ensureDecimal(Math.floor(Math.random() * 100) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const num2 = ensureDecimal(Math.floor(Math.random() * 50) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const num3 = ensureDecimal(Math.floor(Math.random() * 30) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const op1 = Math.random() < 0.5 ? '+' : '-';
+                    const op2 = Math.random() < 0.5 ? '+' : '-';
+                    
+                    problem = `${formatDecimal(num1)} ${op1} ${formatDecimal(num2)} ${op2} ${formatDecimal(num3)}`;
+                    result = eval(`${num1} ${op1} ${num2} ${op2} ${num3}`);
+                } else {
+                    const num1 = ensureDecimal(Math.floor(Math.random() * 80) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const num2 = ensureDecimal(Math.floor(Math.random() * 40) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const num3 = ensureDecimal(Math.floor(Math.random() * 30) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const num4 = ensureDecimal(Math.floor(Math.random() * 20) + (Math.floor(Math.random() * 99) + 1) / 100);
+                    const op1 = Math.random() < 0.5 ? '+' : '-';
+                    const op2 = Math.random() < 0.5 ? '+' : '-';
+                    const op3 = Math.random() < 0.5 ? '+' : '-';
+                    
+                    problem = `${formatDecimal(num1)} ${op1} ${formatDecimal(num2)} ${op2} ${formatDecimal(num3)} ${op3} ${formatDecimal(num4)}`;
+                    result = eval(`${num1} ${op1} ${num2} ${op2} ${num3} ${op3} ${num4}`);
+                }
                 
-                // 创建题目元素
+                regularProblems.push({
+                    problem: problem,
+                    result: formatDecimal(result),
+                    steps: ''
+                });
+            }
+            
+            // 合并所有题目
+            const allProblems = [...simplifiedProblems, ...regularProblems];
+            // 打乱顺序
+            allProblems.sort(() => Math.random() - 0.5);
+            
+            // 显示题目
+            allProblems.forEach((problem, index) => {
                 const problemElement = document.createElement('div');
                 problemElement.className = 'math-problem';
                 problemElement.innerHTML = `
                     <div class="flex items-start">
-                        <span class="font-medium mr-2">${i + 1}.</span>
+                        <span class="font-medium mr-2">${index + 1}.</span>
                         <div class="flex-1">
-                            <div class="mb-2">${problemData.problem} = </div>
-                            <div class="h-16 w-full border border-gray-300 rounded"></div>
+                            <div>${problem.problem} =</div>
+                            <div class="mt-2 h-16 w-full border-b border-r border-l border-gray-300"></div>
                         </div>
                     </div>
                 `;
-                
                 container.appendChild(problemElement);
+                allAnswers.simplified.push(problem);
             });
         }
         
