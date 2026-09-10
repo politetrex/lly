@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"></script>
+</head>
+<body style="background-color: white;">
+    <div>
+        $$min_{1≤i≤j≤n}(|(p_i-p_j)*(j-i)|)$$
+        其中，$p$是一个<code>permutation</code>。<br>
+        $(1,2,3)$是一个排列但$(2,3,4)$不是。<br>
+        排列$p$已给出。
+    </div>
+    <script>
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false}
+            ]
+        });
+    </script>
+</body></html>

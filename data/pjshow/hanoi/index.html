@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉诺塔 · 编程教学工具</title>
+    <style>
+        /* ===== 全局 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .header {
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f0883e, #f6a85b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+
+        .header-right .badge {
+            background: #238636;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* ===== Coding Panel ===== */
+        .coding-panel {
+            flex: 1;
+            background: #0d1117;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #30363d;
+            min-width: 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .coding-panel .panel-header {
+            padding: 6px 16px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .coding-panel .panel-header span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8b949e;
+        }
+
+        .coding-panel .panel-header .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .coding-panel .panel-header .actions .btn {
+            padding: 2px 10px;
+            font-size: 12px;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .line-numbers {
+            padding: 16px 10px 16px 14px;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #30363d;
+            text-align: right;
+            user-select: none;
+            flex-shrink: 0;
+            background: #0d1117;
+            overflow: hidden;
+            min-width: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .line-numbers span {
+            display: block;
+            height: 1.7em;
+            line-height: 1.7;
+            font-size: 14px;
+            font-family: inherit;
+            transition: color 0.15s;
+        }
+
+        .line-numbers .line-error {
+            color: #da3633;
+        }
+        .line-numbers .line-current {
+            color: #f0883e;
+            font-weight: 700;
+            background: rgba(240, 136, 62, 0.15);
+            border-radius: 4px;
+            padding: 0 4px;
+        }
+        .line-numbers .line-comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+        .line-numbers .line-executed {
+            color: #238636;
+        }
+
+        .code-input-wrap {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        .code-input-wrap textarea {
+            width: 100%;
+            height: 100%;
+            padding: 16px 20px;
+            background: #0d1117;
+            color: #e6edf3;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            tab-size: 4;
+            white-space: pre;
+            overflow: auto;
+            display: block;
+        }
+
+        .code-input-wrap textarea::placeholder {
+            color: #30363d;
+        }
+
+        /* ===== Preview Panel ===== */
+        .preview-panel {
+            flex: 1;
+            background: #0d1117;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .preview-panel .panel-header {
+            padding: 6px 16px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .preview-panel .panel-header span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8b949e;
+        }
+
+        .preview-panel .panel-header .status-info {
+            font-size: 12px;
+            color: #8b949e;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .preview-panel .panel-header .status-info .highlight {
+            color: #f0883e;
+            font-weight: 600;
+        }
+
+        .preview-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #hanoiCanvas {
+            width: 100%;
+            height: 100%;
+            max-width: 700px;
+            max-height: 400px;
+            background: #0d1117;
+            border-radius: 8px;
+            display: block;
+            cursor: pointer;
+        }
+
+        .status-bar {
+            padding: 4px 16px;
+            background: #161b22;
+            border-top: 1px solid #30363d;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            min-height: 32px;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .status-bar .error-msg {
+            color: #f85149;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .status-bar .info-msg {
+            color: #8b949e;
+            font-size: 13px;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .status-bar .step-counter {
+            color: #8b949e;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .status-bar .step-counter .num {
+            color: #f0883e;
+            font-weight: 600;
+        }
+
+        /* ===== 模式布局 ===== */
+/* ===== 主容器 可拖拽分栏 ===== */
+.main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+/* 编码面板：宽度由JS动态控制，不写死flex比例 */
+.coding-panel {
+    width: 50%;
+    flex: 0 0 auto;
+    background: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-width: 220px; /* 最小宽度，拖到这里不能再缩小 */
+    max-width: calc(100% - 260px);
+    transition: none; /* 拖拽取消过渡，丝滑不卡顿 */
+    overflow: hidden;
+}
+.preview-panel {
+    flex: 1;
+    background: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    min-width: 240px;
+    transition: none;
+    overflow: hidden;
+}
+/* 拖拽分割条 */
+.resizer {
+    width: 6px;
+    height: 100%;
+    background: var(--border);
+    cursor: col-resize;
+    flex: 0 0 6px;
+    user-select: none;
+    transition: background 0.2s;
+}
+/* 鼠标悬浮分割条高亮，提示可拖动 */
+.resizer:hover {
+    background: #f0883e;
+}
+/* 拖拽中全局样式 */
+body.resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+/* 触点模式：完全隐藏编码面板，分割条一起隐藏 */
+.mode-touch .coding-panel,
+.mode-touch .resizer {
+    display: none !important;
+}
+.mode-touch .preview-panel {
+    flex: 1 !important;
+}
+
+        .mode-touch .coding-panel {
+            display: none !important;
+        }
+        .mode-touch .preview-panel {
+            flex: 1 !important;
+        }
+
+        /* ===== 底部工具栏 ===== */
+        .toolbar {
+            background: #161b22;
+            border-top: 1px solid #30363d;
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-label {
+            font-size: 13px;
+            color: #8b949e;
+            font-weight: 500;
+        }
+
+        .toolbar input[type="number"] {
+            background: #0d1117;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+            font-family: inherit;
+            width: 52px;
+        }
+
+        .toolbar input[type="number"]:focus {
+            border-color: #f0883e;
+        }
+
+        .toolbar input[type="range"] {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #30363d;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .toolbar input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #f0883e;
+            cursor: pointer;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: #0d1117;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            overflow: hidden;
+        }
+
+        .mode-toggle .mode-btn {
+            padding: 4px 16px;
+            border: none;
+            background: transparent;
+            color: #8b949e;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .mode-toggle .mode-btn.active {
+            background: #21262d;
+            color: #f0f6fc;
+        }
+
+        .mode-toggle .mode-btn:hover:not(.active) {
+            color: #e6edf3;
+        }
+
+        .timer-display {
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0883e;
+            min-width: 70px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .btn {
+            padding: 5px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #238636;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #2ea043;
+        }
+
+        .btn-secondary {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
+        .btn-secondary:hover {
+            background: #30363d;
+        }
+
+        .btn-danger {
+            background: #da3633;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #f85149;
+        }
+
+        .btn-warning {
+            background: #d29922;
+            color: #fff;
+        }
+        .btn-warning:hover {
+            background: #e3b341;
+        }
+
+        .btn-purple {
+            background: #6f42c1;
+            color: #fff;
+        }
+        .btn-purple:hover {
+            background: #7c4dcc;
+        }
+
+        .btn-cyan {
+            background: #1f6f8b;
+            color: #fff;
+        }
+        .btn-cyan:hover {
+            background: #2586a8;
+        }
+
+        .btn-pause {
+            background: #d29922;
+            color: #fff;
+        }
+        .btn-pause:hover {
+            background: #e3b341;
+        }
+
+        .btn-resume {
+            background: #238636;
+            color: #fff;
+        }
+        .btn-resume:hover {
+            background: #2ea043;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-comment-on {
+            background: #238636;
+            color: #fff;
+        }
+        .btn-comment-on:hover {
+            background: #2ea043;
+        }
+        .btn-comment-off {
+            background: #21262d;
+            color: #8b949e;
+            border: 1px solid #30363d;
+        }
+        .btn-comment-off:hover {
+            background: #30363d;
+        }
+
+        .speed-label {
+            font-size: 12px;
+            color: #8b949e;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 16px;
+            }
+            .toolbar {
+                padding: 6px 12px;
+                gap: 8px;
+            }
+            .toolbar-group {
+                gap: 4px;
+            }
+            .toolbar-label {
+                font-size: 12px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+            .mode-toggle .mode-btn {
+                font-size: 12px;
+                padding: 3px 10px;
+            }
+            .main {
+                flex-direction: column;
+            }
+            .coding-panel {
+                border-right: none;
+                border-bottom: 1px solid #30363d;
+                flex: 1 !important;
+            }
+            .preview-panel {
+                flex: 1 !important;
+            }
+            .mode-code .coding-panel,
+            .mode-code .preview-panel {
+                flex: 1 !important;
+            }
+            .mode-touch .coding-panel {
+                display: none !important;
+            }
+            .mode-touch .preview-panel {
+                flex: 1 !important;
+            }
+            .timer-display {
+                font-size: 14px;
+                min-width: 50px;
+            }
+            .status-bar {
+                font-size: 12px;
+            }
+            .code-input-wrap textarea {
+                font-size: 13px;
+                padding: 12px 16px;
+            }
+            .line-numbers {
+                font-size: 13px;
+                padding: 12px 6px 12px 10px;
+                min-width: 28px;
+            }
+            .line-numbers span {
+                font-size: 13px;
+                height: 1.7em;
+                line-height: 1.7;
+            }
+            .toolbar input[type="range"] {
+                width: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 4px 12px;
+            }
+            .header h1 {
+                font-size: 14px;
+            }
+            .header-right .badge {
+                font-size: 10px;
+                padding: 1px 8px;
+            }
+            .header-right span:not(.badge) {
+                display: none;
+            }
+            .toolbar {
+                gap: 4px;
+                padding: 4px 6px;
+            }
+            .toolbar-group {
+                gap: 2px;
+            }
+            .btn {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .mode-toggle .mode-btn {
+                font-size: 11px;
+                padding: 2px 8px;
+            }
+            .line-numbers {
+                padding: 10px 4px 10px 8px;
+                min-width: 22px;
+            }
+            .line-numbers span {
+                font-size: 12px;
+                height: 1.6em;
+                line-height: 1.6;
+            }
+            .code-input-wrap textarea {
+                font-size: 12px;
+                padding: 10px 12px;
+                line-height: 1.6;
+            }
+            .toolbar input[type="range"] {
+                width: 40px;
+            }
+            
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+        .code-input-wrap::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .code-input-wrap::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        .code-input-wrap::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+/* 主题变量 */
+:root {
+    --bg-main: #0d1117;
+    --bg-panel: #161b22;
+    --border: #30363d;
+    --text-normal: #e6edf3;
+    --text-dim: #8b949e;
+    --line-num-bg: #0d1117;
+    --canvas-base: #0d1117;
+}
+body.light-mode {
+    --bg-main: #ffffff;
+    --bg-panel: #f6f8fa;
+    --border: #d1d9e0;
+    --text-normal: #1f2328;
+    --text-dim: #656d76;
+    --line-num-bg: #f6f8fa;
+    --canvas-base: #ffffff;
+}
+
+body {
+    background: var(--bg-main);
+    color: var(--text-normal);
+}
+.header {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+}
+.coding-panel, .preview-panel {
+    background: var(--bg-main);
+}
+.coding-panel .panel-header, .preview-panel .panel-header {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+}
+.line-numbers {
+    background: var(--line-num-bg);
+}
+.code-input-wrap textarea {
+    background: var(--bg-main);
+    color: var(--text-normal);
+}
+.toolbar {
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+}
+.status-bar {
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+}
+.toolbar input[type="number"] {
+    background: var(--bg-main);
+    color: var(--text-normal);
+    border: 1px solid var(--border);
+}
+.mode-toggle {
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+}
+#hanoiCanvas {
+    background: var(--canvas-base);
+}
+.header-right span {
+    color: var(--text-dim);
+}
+.toolbar-label, .speed-label {
+    color: var(--text-dim);
+}
+.preview-panel .panel-header .status-info, .header-right span:not(.badge) {
+    color: var(--text-dim);
+}
+.line-numbers span {
+    color: var(--text-dim);
+}
+.status-bar .info-msg {
+    color: var(--text-dim);
+}
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>🏯 汉诺塔 · 编程教学</h1>
+        <div class="header-right">
+            <span class="badge">v2.2</span>
+            <span>指令: <code style="padding:2px 8px;border-radius:4px;font-size:12px;">mov [0-2] [0-2]  ; 注释</code></span>
+        </div>
+    </header>
+
+<div class="main mode-touch" id="mainContainer">
+    <div class="coding-panel" id="codingPanel">
+        <div class="panel-header">
+            <span>📄 Coding Panel</span>
+            <div class="actions">
+                <button class="btn btn-secondary" id="formatBtn" style="font-size:12px;padding:2px 10px;">格式化</button>
+                <button class="btn btn-secondary" id="clearBtn" style="font-size:12px;padding:2px 10px;">清空</button>
+            </div>
+        </div>
+        <div class="editor-wrapper">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <div class="code-input-wrap">
+                <textarea id="codeEditor" spellcheck="false" placeholder="; 输入 mov 指令，每行一条&#10;mov 0 1  ; 从柱子0移动到柱子1"></textarea>
+            </div>
+        </div>
+    </div>
+    <!-- 新增拖拽分割条 -->
+    <div class="resizer" id="panelResizer"></div>
+    <div class="preview-panel" id="previewPanel">
+        <div class="panel-header">
+            <span>👁️ Preview Panel</span>
+            <div class="status-info">
+                <span>步骤: <span class="highlight" id="stepCount">0</span></span>
+                <span>高亮行: <span class="highlight" id="highlightLine">-</span></span>
+            </div>
+        </div>
+        <div class="preview-content">
+            <canvas id="hanoiCanvas"></canvas>
+        </div>
+        <div class="status-bar">
+            <span class="info-msg" id="statusInfo">💡 就绪 — 点击柱子或编写代码</span>
+            <span class="error-msg" id="errorMsg"></span>
+            <span class="step-counter">移动: <span class="num" id="moveCount">0</span></span>
+        </div>
+    </div>
+</div>
+
+    <!-- ===== 底部工具栏 ===== -->
+    <div class="toolbar" id="toolbar">
+        <div class="toolbar-group">
+            <span class="toolbar-label">层数</span>
+            <input type="number" id="diskCount" min="1" max="10" value="4">
+        </div>
+
+        <div class="toolbar-group">
+            <span class="toolbar-label">模式</span>
+            <div class="mode-toggle" id="modeToggle">
+                <button class="mode-btn active" data-mode="touch">👆 触点</button>
+                <button class="mode-btn" data-mode="code">⌨️ 编程</button>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <span class="toolbar-label">⏱️</span>
+            <span class="timer-display" id="timerDisplay">00:00</span>
+        </div>
+
+        <div class="toolbar-group">
+            <span class="toolbar-label">速度</span>
+            <input type="range" id="speedSlider" min="1" max="5" value="3" step="1">
+            <span class="speed-label" id="speedLabel">中</span>
+        </div>
+
+        <div class="toolbar-group" style="margin-left:auto;gap:6px;">
+            <button class="btn btn-secondary" id="undoBtn" disabled>↩ 撤回</button>
+            <button class="btn btn-secondary" id="resetBtn">⟳ 重置</button>
+            <button class="btn btn-cyan" id="commentToggle">💬 注释</button>
+            <button class="btn btn-purple" id="solverBtn">🤖 自动求解</button>
+            <button class="btn btn-pause" id="pauseBtn" disabled>⏸️ 暂停</button>
+            <button class="btn btn-primary" id="runBtn" disabled>▶ 运行</button>
+            <button class="btn btn-warning" id="stepBtn" disabled>⏭ 单步</button>
+            <button class="btn btn-secondary" id="themeBtn">🌓 明暗</button>
+        </div>
+    </div>
+
+    <script>
+// ================================================================
+//  汉诺塔核心
+// ================================================================
+
+const state = {
+    rods: [
+        [],
+        [],
+        []
+    ],
+    diskCount: 4,
+    mode: 'touch',
+    history: [],
+    currentStep: 0,
+    isPlaying: false,
+    isPaused: false,
+    timerInterval: null,
+    timerSeconds: 0,
+    timerStarted: false,
+    selectedRod: null,
+    isComplete: false,
+    codeQueue: [],
+    isCodeRunning: false,
+    moveCount: 0,
+    animating: false,
+    currentHighlightLine: null,
+    withComments: true,
+    // 执行引擎
+    execIndex: 0, // 当前执行到的指令索引
+    totalInstructions: 0,
+    isExecuting: false,
+    pauseRequested: false,
+    speed: 3, // 1-5
+    theme: 'dark',
+};
+
+// DOM
+const canvas = document.getElementById('hanoiCanvas');
+const ctx = canvas.getContext('2d');
+const codeEditor = document.getElementById('codeEditor');
+const lineNumbers = document.getElementById('lineNumbers');
+const diskCountInput = document.getElementById('diskCount');
+const timerDisplay = document.getElementById('timerDisplay');
+const stepCount = document.getElementById('stepCount');
+const highlightLine = document.getElementById('highlightLine');
+const errorMsg = document.getElementById('errorMsg');
+const statusInfo = document.getElementById('statusInfo');
+const moveCountEl = document.getElementById('moveCount');
+const runBtn = document.getElementById('runBtn');
+const stepBtn = document.getElementById('stepBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const undoBtn = document.getElementById('undoBtn');
+const formatBtn = document.getElementById('formatBtn');
+const clearBtn = document.getElementById('clearBtn');
+const solverBtn = document.getElementById('solverBtn');
+const commentToggle = document.getElementById('commentToggle');
+const modeToggle = document.getElementById('modeToggle');
+const mainContainer = document.getElementById('mainContainer');
+const speedSlider = document.getElementById('speedSlider');
+const speedLabel = document.getElementById('speedLabel');
+const themeBtn = document.getElementById('themeBtn');
+const panelResizer = document.getElementById('panelResizer');
+let isPanelResizing = false;
+let resizeStartX = 0;
+let resizeStartWidth = 0;
+
+// ================================================================
+//  速度控制
+// ================================================================
+
+const SPEED_MAP = {
+    1: { label: '极慢(10s)', delay: 10000 },
+    2: { label: '慢(5s)', delay: 5000 },
+    3: { label: '中(3s)', delay: 3000 },
+    4: { label: '快(2s)', delay: 2000 },
+    5: { label: '极快(1s)', delay: 1000 },
+};
+
+function getSpeedDelay() {
+    const val = parseInt(speedSlider.value) || 3;
+    return SPEED_MAP[val]?.delay || 200;
+}
+
+speedSlider.addEventListener('input', () => {
+    const val = parseInt(speedSlider.value);
+    state.speed = val;
+    speedLabel.textContent = SPEED_MAP[val]?.label || '中';
+});
+
+// ================================================================
+//  画布
+// ================================================================
+
+function resizeCanvas() {
+    const container = canvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    const w = Math.min(rect.width - 40, 700);
+    const h = Math.min(rect.height - 40, 400);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.scale(dpr, dpr);
+    canvas.logicalWidth = w;
+    canvas.logicalHeight = h;
+    render();
+}
+
+// ================================================================
+//  绘制
+// ================================================================
+
+function toggleTheme() {
+    if (state.theme === 'dark') {
+        state.theme = 'light';
+        document.body.classList.add('light-mode');
+        themeBtn.textContent = '🌑 深色';
+    } else {
+        state.theme = 'dark';
+        document.body.classList.remove('light-mode');
+        themeBtn.textContent = '🌓 明暗';
+    }
+    render(); // 重绘画布适配浅色背景
+}
+
+function render() {
+    const w = canvas.logicalWidth || canvas.width;
+    const h = canvas.logicalHeight || canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const rodCount = 3;
+    const rodWidth = 8;
+    const baseY = h - 40;
+    const rodHeight = h - 80;
+    const rodSpacing = w / (rodCount + 1);
+    const maxDisk = state.diskCount;
+    const diskHeight = Math.min(20, (h - 80) / (maxDisk + 1));
+
+    ctx.fillStyle = '#30363d';
+    ctx.fillRect(20, baseY + 2, w - 40, 6);
+
+    for (let r = 0; r < rodCount; r++) {
+        const x = rodSpacing * (r + 1);
+        ctx.fillStyle = '#484f58';
+        ctx.fillRect(x - rodWidth / 2, baseY - rodHeight, rodWidth, rodHeight);
+        ctx.fillStyle = '#f0883e';
+        ctx.beginPath();
+        ctx.arc(x, baseY - rodHeight, rodWidth / 2 + 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        const disks = state.rods[r];
+        for (let i = 0; i < disks.length; i++) {
+            const diskSize = disks[i];
+            const ratio = diskSize / maxDisk;
+            const diskWidth = 20 + ratio * (w / (rodCount + 1) - 30);
+            const y = baseY - (i + 1) * diskHeight - 2;
+            const xPos = x - diskWidth / 2;
+
+            const hue = 30 + diskSize * 25;
+            const lightness = 50 + diskSize * 3;
+            ctx.fillStyle = `hsl(${hue}, 80%, ${lightness}%)`;
+            ctx.shadowColor = 'rgba(240, 136, 62, 0.15)';
+            ctx.shadowBlur = 6;
+            const radius = 4;
+            ctx.beginPath();
+            ctx.moveTo(xPos + radius, y);
+            ctx.lineTo(xPos + diskWidth - radius, y);
+            ctx.quadraticCurveTo(xPos + diskWidth, y, xPos + diskWidth, y + radius);
+            ctx.lineTo(xPos + diskWidth, y + diskHeight - radius);
+            ctx.quadraticCurveTo(xPos + diskWidth, y + diskHeight, xPos + diskWidth - radius, y + diskHeight);
+            ctx.lineTo(xPos + radius, y + diskHeight);
+            ctx.quadraticCurveTo(xPos, y + diskHeight, xPos, y + diskHeight - radius);
+            ctx.lineTo(xPos, y + radius);
+            ctx.quadraticCurveTo(xPos, y, xPos + radius, y);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(xPos, y, diskWidth, diskHeight);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = `${Math.min(diskHeight * 0.6, 14)}px monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(diskSize, x, y + diskHeight / 2);
+        }
+    }
+
+    if (state.mode === 'touch' && state.selectedRod !== null) {
+        const x = rodSpacing * (state.selectedRod + 1);
+        ctx.strokeStyle = 'rgba(240, 136, 62, 0.6)';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(x - 40, 10, 80, baseY - 20);
+        ctx.setLineDash([]);
+    }
+
+    if (state.isComplete) {
+        ctx.fillStyle = 'rgba(35, 134, 54, 0.15)';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#238636';
+        ctx.font = 'bold 32px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🎉 完成!', w / 2, 50);
+    }
+}
+
+// ================================================================
+//  汉诺塔逻辑
+// ================================================================
+
+function initRods(count) {
+    state.rods = [
+        [],
+        [],
+        []
+    ];
+    for (let i = count; i >= 1; i--) {
+        state.rods[0].push(i);
+    }
+    state.diskCount = count;
+    state.history = [];
+    state.currentStep = 0;
+    state.moveCount = 0;
+    state.isComplete = false;
+    state.selectedRod = null;
+    state.codeQueue = [];
+    state.isCodeRunning = false;
+    state.animating = false;
+    state.currentHighlightLine = null;
+    state.execIndex = 0;
+    state.totalInstructions = 0;
+    state.isExecuting = false;
+    state.isPaused = false;
+    state.timerSeconds = 0;
+    state.timerStarted = false;
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+    timerDisplay.textContent = '00:00';
+    highlightLine.textContent = '-';
+    stepCount.textContent = '0';
+    moveCountEl.textContent = '0';
+    pauseBtn.textContent = '⏸️ 暂停';
+    pauseBtn.className = 'btn btn-pause';
+    pauseBtn.disabled = true;
+    updateUI();
+    render();
+    updateButtons();
+    updateLineNumbers();
+}
+
+function isValidMove(from, to) {
+    if (from === to) return false;
+    if (from < 0 || from > 2 || to < 0 || to > 2) return false;
+    const fromRod = state.rods[from];
+    const toRod = state.rods[to];
+    if (fromRod.length === 0) return false;
+    if (toRod.length === 0) return true;
+    return fromRod[fromRod.length - 1] < toRod[toRod.length - 1];
+}
+
+function doMove(from, to, recordHistory = true) {
+    if (!isValidMove(from, to)) return false;
+    const disk = state.rods[from].pop();
+    state.rods[to].push(disk);
+    if (recordHistory) {
+        state.history.push({ from, to, diskSize: disk });
+        state.currentStep = state.history.length;
+        state.moveCount++;
+    }
+    if (state.rods[2].length === state.diskCount) {
+        state.isComplete = true;
+        stopTimer();
+    }
+    updateUI();
+    render();
+    updateButtons();
+    return true;
+}
+
+function undoMove() {
+    if (state.history.length === 0 || state.isPlaying || state.animating || state.isExecuting) return;
+    const last = state.history.pop();
+    const disk = state.rods[last.to].pop();
+    state.rods[last.from].push(disk);
+    state.currentStep = state.history.length;
+    state.moveCount--;
+    state.isComplete = false;
+    state.currentHighlightLine = null;
+    highlightLine.textContent = '-';
+    updateUI();
+    render();
+    updateButtons();
+    updateLineNumbers();
+    statusInfo.textContent = '↩ 已撤回一步';
+    errorMsg.textContent = '';
+}
+
+function resetGame() {
+    if (state.isPlaying || state.isExecuting) return;
+    const count = parseInt(diskCountInput.value) || 4;
+    if (count < 1) diskCountInput.value = 1;
+    if (count > 10) diskCountInput.value = 10;
+    initRods(parseInt(diskCountInput.value));
+    state.currentHighlightLine = null;
+    highlightLine.textContent = '-';
+    statusInfo.textContent = '🔄 已重置';
+    errorMsg.textContent = '';
+    runBtn.disabled = true;
+    stepBtn.disabled = true;
+    undoBtn.disabled = true;
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = '⏸️ 暂停';
+    pauseBtn.className = 'btn btn-pause';
+    updateLineNumbers();
+}
+
+// ================================================================
+//  计时器
+// ================================================================
+
+function startTimer() {
+    if (state.timerStarted) return;
+    state.timerStarted = true;
+    state.timerSeconds = 0;
+    clearInterval(state.timerInterval);
+    state.timerInterval = setInterval(() => {
+        state.timerSeconds++;
+        const m = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
+        const s = String(state.timerSeconds % 60).padStart(2, '0');
+        timerDisplay.textContent = `${m}:${s}`;
+    }, 1000);
+}
+
+function stopTimer() {
+    state.timerStarted = false;
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+}
+
+function resetTimer() {
+    stopTimer();
+    state.timerSeconds = 0;
+    timerDisplay.textContent = '00:00';
+    state.timerStarted = false;
+}
+
+// ================================================================
+//  代码解析
+// ================================================================
+
+function parseCode(code) {
+    const lines = code.split('\n');
+    const instructions = [];
+    const errors = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const lineNum = i + 1;
+        const raw = lines[i];
+        const trimmed = raw.trim();
+
+        if (trimmed === '') {
+            instructions.push({ type: 'empty', line: lineNum, raw: '' });
+            continue;
+        }
+
+        if (/^\s*;/.test(trimmed)) {
+            instructions.push({
+                type: 'comment',
+                line: lineNum,
+                raw: trimmed,
+                content: trimmed.replace(/^\s*;/, '').trim()
+            });
+            continue;
+        }
+
+        let codePart = trimmed;
+        let commentPart = '';
+        const commentMatch = trimmed.match(/^(.*?)(\s*;.*)$/);
+        if (commentMatch) {
+            codePart = commentMatch[1].trim();
+            commentPart = commentMatch[2].trim();
+        }
+
+        const movMatch = codePart.match(/^mov\s+([0-2])\s+([0-2])$/i);
+        if (movMatch) {
+            const from = parseInt(movMatch[1]);
+            const to = parseInt(movMatch[2]);
+            instructions.push({
+                type: 'mov',
+                from,
+                to,
+                line: lineNum,
+                raw: trimmed,
+                comment: commentPart || null
+            });
+        } else if (codePart !== '') {
+            errors.push({ line: lineNum, msg: '无效指令，格式应为 mov 0 1 或 ; 注释' });
+        }
+    }
+
+    return { instructions, errors };
+}
+
+function runLinter() {
+    const code = codeEditor.value;
+    const result = parseCode(code);
+    const errorLines = new Set(result.errors.map(e => e.line));
+
+    updateLineNumbersWithErrors(errorLines);
+
+    if (result.errors.length > 0) {
+        errorMsg.textContent = '❌ ' + result.errors.map(e => `行${e.line}: ${e.msg}`).join('; ');
+        statusInfo.textContent = '⚠️ 代码有错误，请修正';
+        runBtn.disabled = true;
+        stepBtn.disabled = true;
+        return result;
+    } else {
+        errorMsg.textContent = '';
+        const hasMov = result.instructions.some(i => i.type === 'mov');
+        const hasContent = result.instructions.some(i => i.type === 'mov' || i.type === 'comment');
+        if (hasMov) {
+            statusInfo.textContent = '✅ 代码通过检查';
+            runBtn.disabled = false;
+            stepBtn.disabled = false;
+        } else if (hasContent) {
+            statusInfo.textContent = '💡 代码只有注释，没有 mov 指令';
+            runBtn.disabled = true;
+            stepBtn.disabled = true;
+        } else {
+            statusInfo.textContent = '💡 代码为空';
+            runBtn.disabled = true;
+            stepBtn.disabled = true;
+        }
+        return result;
+    }
+}
+
+function updateLineNumbers() {
+    const lines = codeEditor.value.split('\n');
+    let html = '';
+    for (let i = 1; i <= lines.length; i++) {
+        let cls = '';
+        if (state.currentHighlightLine === i) cls = 'line-current';
+        const line = lines[i - 1] || '';
+        if (line.trim().startsWith(';')) cls += ' line-comment';
+        html += `<span class="${cls}">${i}</span>`;
+    }
+    lineNumbers.innerHTML = html || '<span>1</span>';
+}
+
+function updateLineNumbersWithErrors(errorLines) {
+    const lines = codeEditor.value.split('\n');
+    let html = '';
+    for (let i = 1; i <= lines.length; i++) {
+        let cls = '';
+        if (state.currentHighlightLine === i) cls = 'line-current';
+        else if (errorLines.has(i)) cls = 'line-error';
+        const line = lines[i - 1] || '';
+        if (line.trim().startsWith(';') && !errorLines.has(i)) cls += ' line-comment';
+        html += `<span class="${cls}">${i}</span>`;
+    }
+    lineNumbers.innerHTML = html || '<span>1</span>';
+}
+
+// ================================================================
+//  自动求解器
+// ================================================================
+
+const TABLE = [
+    [-1, 2, 1],
+    [2, -1, 0],
+    [1, 0, -1]
+];
+
+function hanoi(sce, des, h) {
+    if (sce === des) return [];
+    if (h === 1) return [{ from: sce, to: des, disk: 1 }];
+    const oth = TABLE[sce][des];
+    const left = hanoi(sce, oth, h - 1);
+    const right = hanoi(oth, des, h - 1);
+    return [...left, { from: sce, to: des, disk: h }, ...right];
+}
+
+function generateSolverCode(n, from = 0, to = 2) {
+    const rawMoves = hanoi(from, to, n);
+    const moves = [];
+    const withComments = state.withComments;
+
+    for (const m of rawMoves) {
+        if (withComments) {
+            moves.push(`mov ${m.from} ${m.to}  ; 移动圆盘 ${m.disk}`);
+        } else {
+            moves.push(`mov ${m.from} ${m.to}`);
+        }
+    }
+    return moves;
+}
+
+function runSolver() {
+    const count = parseInt(diskCountInput.value) || 4;
+    if (count < 1 || count > 10) {
+        statusInfo.textContent = '⚠️ 层数请设置在 1~10 之间';
+        return;
+    }
+
+    const moves = generateSolverCode(count);
+    const totalSteps = moves.length;
+    const commentStatus = state.withComments ? '含注释' : '无注释';
+    const header =
+        `; 汉诺塔 ${count} 层 最优解 (${totalSteps} 步) - ${commentStatus}\n; 从柱子 0 移动到柱子 2\n`;
+    const code = header + moves.join('\n');
+
+    codeEditor.value = code;
+    codeEditor.scrollTop = 0;
+
+    const result = runLinter();
+    if (result.errors.length === 0) {
+        statusInfo.textContent = `🤖 已生成 ${count} 层最优解 (${totalSteps} 步，${commentStatus})`;
+        setTimeout(() => {
+            if (state.mode === 'code') {
+                executeCode(false);
+            }
+        }, 300);
+    }
+    updateLineNumbers();
+}
+
+// ================================================================
+//  注释切换
+// ================================================================
+
+function toggleComments() {
+    state.withComments = !state.withComments;
+    updateCommentButton();
+    statusInfo.textContent = state.withComments ? '💬 注释已开启' : '🔇 注释已关闭';
+}
+
+function updateCommentButton() {
+    if (state.withComments) {
+        commentToggle.textContent = '💬 注释';
+        commentToggle.className = 'btn btn-cyan';
+    } else {
+        commentToggle.textContent = '🔇 无注释';
+        commentToggle.className = 'btn btn-secondary';
+    }
+}
+
+// ================================================================
+//  🚀 执行引擎（完整修复注释展示）
+// ================================================================
+
+function executeCode(stepMode = false) {
+    if (state.isExecuting || state.isPlaying) return;
+
+    if (state.isComplete) {
+        resetGame();
+    }
+
+    const result = runLinter();
+    if (result.errors.length > 0) return;
+
+    const allInstructions = result.instructions;
+    const movs = allInstructions.filter(i => i.type === 'mov');
+
+    if (movs.length === 0) {
+        statusInfo.textContent = '⚠️ 没有可执行的 mov 指令';
+        return;
+    }
+
+    const count = parseInt(diskCountInput.value) || 4;
+    initRods(count);
+
+    state.codeQueue = allInstructions;
+    state.execIndex = 0;
+    state.totalInstructions = allInstructions.length;
+    state.isCodeRunning = true;
+    state.isExecuting = true;
+    state.isPaused = false;
+    state.isPlaying = !stepMode;
+    state.isComplete = false;
+    state.currentHighlightLine = null;
+    resetTimer();
+    startTimer();
+
+    pauseBtn.disabled = false;
+    pauseBtn.textContent = '⏸️ 暂停';
+    pauseBtn.className = 'btn btn-pause';
+    runBtn.disabled = true;
+    stepBtn.disabled = true;
+
+    statusInfo.textContent = stepMode ? '▶ 单步执行...' : '▶ 运行中...';
+
+    if (stepMode) {
+        doStepExecution();
+    } else {
+        runAllStepsExecution();
+    }
+}
+
+// ----- 单步执行【修复注释展示】-----
+function doStepExecution() {
+    if (!state.isExecuting) return;
+    if (state.isPaused) {
+        statusInfo.textContent = '⏸️ 已暂停';
+        return;
+    }
+
+    if (state.execIndex >= state.totalInstructions) {
+        finishExecution();
+        return;
+    }
+
+    const instr = state.codeQueue[state.execIndex];
+    state.currentHighlightLine = instr.line;
+    highlightLine.textContent = instr.line;
+    stepCount.textContent = state.execIndex + 1;
+    updateLineNumbers();
+
+    if (instr.type === 'mov') {
+        if (!isValidMove(instr.from, instr.to)) {
+            errorMsg.textContent = `❌ 行${instr.line}: 非法移动 ${instr.from} → ${instr.to}`;
+            statusInfo.textContent = '⛔ 执行停止';
+            stopExecution();
+            return;
+        }
+        doMove(instr.from, instr.to, true);
+        let tip = `✅ 执行行 ${instr.line}: mov ${instr.from} ${instr.to}`;
+        // 读取尾部注释拼接
+        if (instr.comment && instr.comment.trim() !== '') {
+            tip += ` ｜ 注释：${instr.comment.trim().replace(/^;\s*/, '')}`;
+        }
+        statusInfo.textContent = tip;
+        moveCountEl.textContent = state.moveCount;
+    } else if (instr.type === 'comment') {
+        statusInfo.textContent = `💬 注释行 ${instr.line}: ${instr.content || ''}`;
+    } else if (instr.type === 'empty') {
+        statusInfo.textContent = `📄 空行 ${instr.line}（跳过）`;
+    }
+
+    state.execIndex++;
+
+    if (state.rods[2].length === state.diskCount) {
+        state.isComplete = true;
+        stopTimer();
+        statusInfo.textContent = '🎉 完成! 所有圆盘已移动到目标柱';
+        finishExecution();
+        return;
+    }
+
+    render();
+    updateButtons();
+    updateLineNumbers();
+
+    // 单步执行完毕暂停
+    state.isPlaying = false;
+    runBtn.disabled = false;
+    stepBtn.disabled = false;
+    pauseBtn.disabled = true;
+    state.isExecuting = false;
+    statusInfo.textContent = `⏭ 已执行 ${state.execIndex}/${state.totalInstructions} 步，点击"单步"继续`;
+}
+
+// ----- 连续运行 -----
+function runAllStepsExecution() {
+    if (!state.isExecuting) return;
+
+    if (state.isPaused) {
+        statusInfo.textContent = '⏸️ 已暂停';
+        pauseBtn.textContent = '▶️ 继续';
+        pauseBtn.className = 'btn btn-resume';
+        return;
+    }
+
+    if (state.execIndex >= state.totalInstructions) {
+        finishExecution();
+        return;
+    }
+
+    const instr = state.codeQueue[state.execIndex];
+    state.currentHighlightLine = instr.line;
+    highlightLine.textContent = instr.line;
+    stepCount.textContent = state.execIndex + 1;
+    updateLineNumbers();
+
+    if (instr.type === 'mov') {
+        if (!isValidMove(instr.from, instr.to)) {
+            errorMsg.textContent = `❌ 行${instr.line}: 非法移动 ${instr.from} → ${instr.to}`;
+            statusInfo.textContent = '⛔ 执行停止';
+            stopExecution();
+            return;
+        }
+        doMove(instr.from, instr.to, true);
+        let tip = `✅ 执行行 ${instr.line}: mov ${instr.from} ${instr.to}`;
+        if (instr.comment && instr.comment.trim() !== '') {
+            tip += ` ｜ 注释：${instr.comment.trim().replace(/^;\s*/, '')}`;
+        }
+        statusInfo.textContent = tip;
+        moveCountEl.textContent = state.moveCount;
+    } else if (instr.type === 'comment') {
+        statusInfo.textContent = `💬 注释行 ${instr.line}: ${instr.content || ''}`;
+    } else if (instr.type === 'empty') {
+        statusInfo.textContent = `📄 空行 ${instr.line}（跳过）`;
+    }
+
+    state.execIndex++;
+
+    if (state.rods[2].length === state.diskCount) {
+        state.isComplete = true;
+        stopTimer();
+        statusInfo.textContent = '🎉 完成! 所有圆盘已移动到目标柱';
+        finishExecution();
+        return;
+    }
+
+    render();
+    updateButtons();
+    updateLineNumbers();
+
+    const delay = getSpeedDelay();
+    if (state.isPaused) {
+        pauseBtn.textContent = '▶️ 继续';
+        pauseBtn.className = 'btn btn-resume';
+        statusInfo.textContent = '⏸️ 已暂停';
+        return;
+    }
+
+    setTimeout(() => {
+        if (state.isExecuting && !state.isPaused) {
+            runAllStepsExecution();
+        }
+    }, delay);
+}
+
+// ----- 暂停/继续 -----
+function togglePause() {
+    if (!state.isExecuting) return;
+    state.isPaused = !state.isPaused;
+
+    if (state.isPaused) {
+        pauseBtn.textContent = '▶️ 继续';
+        pauseBtn.className = 'btn btn-resume';
+        statusInfo.textContent = '⏸️ 已暂停';
+    } else {
+        pauseBtn.textContent = '⏸️ 暂停';
+        pauseBtn.className = 'btn btn-pause';
+        statusInfo.textContent = '▶️ 继续执行...';
+        if (state.isPlaying) {
+            runAllStepsExecution();
+        } else {
+            state.isExecuting = true;
+            doStepExecution();
+        }
+    }
+}
+
+// ----- 执行完成 -----
+function finishExecution() {
+    state.isExecuting = false;
+    state.isPlaying = false;
+    state.isCodeRunning = false;
+    state.isPaused = false;
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = '⏸️ 暂停';
+    pauseBtn.className = 'btn btn-pause';
+    runBtn.disabled = false;
+    stepBtn.disabled = false;
+
+    if (state.isComplete) {
+        statusInfo.textContent = '🎉 恭喜完成!';
+        highlightLine.textContent = '-';
+        state.currentHighlightLine = null;
+        updateLineNumbers();
+    } else {
+        statusInfo.textContent = `✅ 执行完毕 (${state.execIndex}/${state.totalInstructions} 步)`;
+    }
+    render();
+    updateButtons();
+}
+
+// ----- 异常停止 -----
+function stopExecution() {
+    state.isExecuting = false;
+    state.isPlaying = false;
+    state.isCodeRunning = false;
+    state.isPaused = false;
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = '⏸️ 暂停';
+    pauseBtn.className = 'btn btn-pause';
+    runBtn.disabled = false;
+    stepBtn.disabled = false;
+    render();
+    updateButtons();
+    updateLineNumbers();
+}
+
+// ================================================================
+//  触点点击逻辑
+// ================================================================
+function handleRodClick(rodIndex) {
+    if (state.mode !== 'touch' || state.isPlaying || state.animating || state.isExecuting) return;
+    if (state.isComplete) {
+        resetGame();
+        return;
+    }
+
+    if (!state.timerStarted) startTimer();
+
+    if (state.selectedRod === null) {
+        if (state.rods[rodIndex].length === 0) {
+            statusInfo.textContent = '⚠️ 这根柱子是空的，请选择有圆盘的柱子';
+            return;
+        }
+        state.selectedRod = rodIndex;
+        statusInfo.textContent = `👉 已选择柱子 ${rodIndex}，请选择目标柱子`;
+        render();
+        updateButtons();
+        return;
+    }
+
+    const from = state.selectedRod;
+    const to = rodIndex;
+
+    if (from === to) {
+        state.selectedRod = null;
+        statusInfo.textContent = '👆 已取消选择';
+        render();
+        updateButtons();
+        return;
+    }
+
+    if (isValidMove(from, to)) {
+        doMove(from, to, true);
+        // 触点自动生成带注释代码
+        const codeLine = `mov ${from} ${to}  ; 触点手动操作移动`;
+        const currentCode = codeEditor.value;
+        const lines = currentCode.split('\n');
+        const trimmedLines = lines.filter(l => l.trim() !== '');
+        trimmedLines.push(codeLine);
+        codeEditor.value = trimmedLines.join('\n');
+        codeEditor.scrollTop = codeEditor.scrollHeight;
+        runLinter();
+        statusInfo.textContent = `✅ 从 ${from} 移动到 ${to}`;
+        state.selectedRod = null;
+        render();
+        updateButtons();
+        updateLineNumbers();
+    } else {
+        statusInfo.textContent = `❌ 非法移动: 从 ${from} 到 ${to}`;
+        state.selectedRod = null;
+        render();
+        updateButtons();
+    }
+}
+
+// ================================================================
+// UI刷新工具
+// ================================================================
+function updateUI() {
+    stepCount.textContent = state.currentStep;
+    moveCountEl.textContent = state.moveCount;
+    if (state.isComplete) {
+        statusInfo.textContent = '🎉 恭喜完成!';
+    }
+    undoBtn.disabled = state.history.length === 0 || state.isPlaying || state.animating || state.isExecuting;
+}
+
+function updateButtons() {
+    const isMovMode = state.mode === 'code';
+    if (isMovMode) {
+        const result = runLinter();
+        const hasMov = result.instructions.some(i => i.type === 'mov');
+        const hasContent = result.instructions.some(i => i.type === 'mov' || i.type === 'comment');
+        runBtn.disabled = state.isPlaying || state.isComplete || state.isExecuting || !hasMov || result.errors.length > 0;
+        stepBtn.disabled = state.isPlaying || state.isComplete || state.isExecuting || !hasMov || result.errors.length > 0;
+    } else {
+        runBtn.disabled = true;
+        stepBtn.disabled = true;
+    }
+    undoBtn.disabled = state.history.length === 0 || state.isPlaying || state.animating || state.isExecuting;
+    solverBtn.disabled = state.isPlaying || state.animating || state.isExecuting;
+}
+
+// ================================================================
+// 模式切换
+// ================================================================
+function setMode(mode) {
+    if (state.isExecuting || state.isPlaying) return;
+    state.mode = mode;
+    mainContainer.classList.remove('mode-touch', 'mode-code');
+    mainContainer.classList.add(mode === 'touch' ? 'mode-touch' : 'mode-code');
+
+    modeToggle.querySelectorAll('.mode-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.mode === mode);
+    });
+
+    if (mode === 'code') {
+        statusInfo.textContent = '⌨️ 编程模式 — 编写 mov 指令，点击运行';
+        if (codeEditor.value.trim() === '') {
+            codeEditor.value = '; 示例: 将3层从0移到2\nmov 0 2  ; 最大圆盘移至目标\nmov 0 1\nmov 2 1\nmov 0 2\nmov 1 0\nmov 1 2\nmov 0 2';
+        }
+        runLinter();
+        state.selectedRod = null;
+        render();
+    } else {
+        statusInfo.textContent = '👆 触点模式 — 点击柱子移动圆盘，自动生成代码';
+        runBtn.disabled = true;
+        stepBtn.disabled = true;
+        state.selectedRod = null;
+        render();
+    }
+    updateButtons();
+    updateLineNumbers();
+    setTimeout(resizeCanvas, 100);
+}
+
+// ================================================================
+// 事件绑定
+// ================================================================
+canvas.addEventListener('click', (e) => {
+    if (state.mode !== 'touch') return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width * canvas.logicalWidth;
+    const w = canvas.logicalWidth;
+    const rodSpacing = w / 4;
+    for (let i = 0; i < 3; i++) {
+        const cx = rodSpacing * (i + 1);
+        if (Math.abs(x - cx) < 40) {
+            handleRodClick(i);
+            break;
+        }
+    }
+});
+
+modeToggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('.mode-btn');
+    if (!btn || btn.classList.contains('active')) return;
+    setMode(btn.dataset.mode);
+});
+
+resetBtn.addEventListener('click', resetGame);
+undoBtn.addEventListener('click', undoMove);
+
+runBtn.addEventListener('click', () => {
+    if (state.mode === 'code') executeCode(false);
+});
+
+stepBtn.addEventListener('click', () => {
+    if (state.mode === 'code') {
+        if (state.isExecuting && !state.isPlaying) {
+            state.isExecuting = true;
+            state.isPaused = false;
+            pauseBtn.disabled = false;
+            doStepExecution();
+        } else {
+            executeCode(true);
+        }
+    }
+});
+
+pauseBtn.addEventListener('click', togglePause);
+
+solverBtn.addEventListener('click', runSolver);
+commentToggle.addEventListener('click', toggleComments);
+
+formatBtn.addEventListener('click', () => {
+    const lines = codeEditor.value.split('\n');
+    const formatted = lines.map(l => l.trim()).filter(l => l !== '').join('\n');
+    codeEditor.value = formatted;
+    runLinter();
+    updateLineNumbers();
+});
+
+clearBtn.addEventListener('click', () => {
+    codeEditor.value = '';
+    runLinter();
+    updateLineNumbers();
+    statusInfo.textContent = '🧹 已清空代码';
+    errorMsg.textContent = '';
+    runBtn.disabled = true;
+    stepBtn.disabled = true;
+});
+
+codeEditor.addEventListener('input', () => {
+    runLinter();
+    updateLineNumbers();
+    updateButtons();
+});
+
+codeEditor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        codeEditor.value = codeEditor.value.substring(0, start) + '  ' + codeEditor.value.substring(end);
+        codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+        updateLineNumbers();
+    }
+});
+
+codeEditor.addEventListener('scroll', () => {
+    lineNumbers.scrollTop = codeEditor.scrollTop;
+});
+
+diskCountInput.addEventListener('change', () => {
+    let val = parseInt(diskCountInput.value) || 4;
+    if (val < 1) val = 1;
+    if (val > 10) val = 10;
+    diskCountInput.value = val;
+    if (!state.isPlaying && !state.isExecuting) resetGame();
+});
+
+window.addEventListener('resize', resizeCanvas);
+
+// ================================================================
+// 拖拽分栏初始化
+// ================================================================
+function initPanelResizer() {
+    const leftPanel = document.getElementById('codingPanel');
+    panelResizer.addEventListener('mousedown', (e) => {
+        isPanelResizing = true;
+        resizeStartX = e.clientX;
+        resizeStartWidth = leftPanel.offsetWidth;
+        document.body.classList.add('resizing');
+
+        function onMouseMove(e) {
+            if (!isPanelResizing) return;
+            const dx = e.clientX - resizeStartX;
+            const newWidth = resizeStartWidth + dx;
+            const minW = 220;
+            const maxW = mainContainer.offsetWidth - 260;
+            if (newWidth >= minW && newWidth <= maxW) {
+                leftPanel.style.width = newWidth + 'px';
+            }
+        }
+        function onMouseUp() {
+            isPanelResizing = false;
+            document.body.classList.remove('resizing');
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+}
+
+// ================================================================
+// 全局初始化
+// ================================================================
+function init() {
+    initRods(4);
+    codeEditor.value = '; 示例: 将3层从0移到2\nmov 0 2  ; 最大圆盘移至目标\nmov 0 1\nmov 2 1\nmov 0 2\nmov 1 0\nmov 1 2\nmov 0 2';
+    resizeCanvas();
+    setMode('touch');
+    statusInfo.textContent = '👆 触点模式 — 点击柱子移动圆盘';
+    runBtn.disabled = true;
+    stepBtn.disabled = true;
+    pauseBtn.disabled = true;
+    updateCommentButton();
+    updateLineNumbers();
+    speedLabel.textContent = SPEED_MAP[3].label;
+    initPanelResizer();
+    console.log('🏯 汉诺塔 · 编程教学工具 v2.2 已加载');
+}
+
+init();
+themeBtn.addEventListener('click', toggleTheme);
+    </script>
+</body>
+</html>
